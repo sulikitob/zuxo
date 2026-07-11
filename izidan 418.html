@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz test</title>
+<style>
+/* --- SIZNING ORIGINAL STILINGIZ --- */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial;
+    background: linear-gradient(135deg, #050505, #121212, #1d1d1d);
+    color: white;
+    overflow-x: hidden;
+}
+
+/* HERO */
+.hero {
+    width: 100%;
+    height: 420px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero img {
+    max-height: 90%;
+    max-width: 90%;
+    object-fit: contain;
+    border-radius: 25px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.25),
+        rgba(0, 0, 0, 0.65)
+    );
+}
+
+.floating-text h1 {
+    font-size: 60px;
+    color: white;
+    text-shadow: none;
+    position: relative;
+    z-index: 11;
+}
+
+/* MENU GRID */
+.container {
+    max-width: 1300px;
+    margin: auto;
+    padding: 50px 20px;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+/* NEON CARD STILINGIZ */
+.card {
+    background: #1b1b1b;
+    border-radius: 25px;
+    padding: 40px 20px;
+    text-align: center;
+    transition: 0.4s;
+    text-decoration: none;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 255, 150, 0.1);
+    display: block;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, #00ff99, transparent);
+    top: -150%;
+    left: -150%;
+    transform: rotate(25deg);
+    transition: 0.7s;
+}
+
+.card:hover::before {
+    top: 100%;
+    left: 100%;
+}
+
+.card:hover {
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 0 35px rgba(0, 255, 150, 0.5);
+}
+
+.card h2 {
+    position: relative;
+    z-index: 2;
+    font-size: 22px;
+}
+
+/* FOOTER */
+.footer {
+    text-align: center;
+    padding: 30px;
+    color: #999;
+}
+
+/* RESPONSIVE */
+@media(max-width: 1000px) {
+    .menu-grid { grid-template-columns: repeat(2, 1fr); }
+    .floating-text h1 { font-size: 50px; }
+}
+
+@media(max-width: 600px) {
+    .hero { height: 260px; }
+    .menu-grid { grid-template-columns: 1fr; }
+    .floating-text h1 { font-size: 38px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+    <img src="izidan.jpg" alt="Til rasmi">
+    <div class="floating-text">
+        <h1>📚 Bobo so'z izidan</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="menu-grid" id="menu-grid"></div>
+</div>
+
+<div class="footer">
+    Nazarovs.uz © 2026
+</div>
+
+<script>
+    const gridContainer = document.getElementById('menu-grid');
+    const totalChapters = 418;
+
+    for (let i = 1; i <= totalChapters; i++) {
+        const cardLink = document.createElement('a');
+        cardLink.href = `${i}-Bob.html`;
+        cardLink.className = 'card';
+        // Faqat i-Bob yozuvi qoldi
+        cardLink.innerHTML = `<h2>${i}-Bob</h2>`;
+        gridContainer.appendChild(cardLink);
+    }
+</script>
+
+</body>
+</html>

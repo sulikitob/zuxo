@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7-Bob. Adabiy asar-Til xodisasi. Yoshlik jurnalida suhbat</title>
+<style>
+    body { margin:0; padding:0; background:#111; font-family:Arial; color:white; display:flex; justify-content:center; align-items:center; height:100vh; overflow:hidden; }
+    #startScreen { position:fixed; top:0; left:0; width:100%; height:100%; background:#111; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; z-index:9999; padding:20px; }
+    #startScreen h1 { color:#00ff99; font-size:50px; }
+    .oyat { max-width:800px; font-size:28px; line-height:1.8; color:#ddd; margin-top:20px; }
+    #startScreen h3 { color:#00ff99; margin-top:20px; }
+    #count { font-size:100px; color:#00ff99; margin-top:40px; animation:pulse 1s infinite; }
+    @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.2);} 100%{transform:scale(1);} }
+    .box { width:650px; background:#1e1e1e; padding:30px; border-radius:20px; text-align:center; box-shadow:0 0 20px black; }
+    h2 { color:#00ff99; }
+    input { width:100%; padding:15px; margin-top:15px; border:none; border-radius:10px; font-size:18px; }
+    button { width:100%; padding:15px; margin-top:15px; border:none; border-radius:10px; background:#00ff99; color:black; font-weight:bold; cursor:pointer; font-size:18px; }
+    #result { margin-top:15px; font-size:20px; }
+</style>
+</head>
+<body>
+
+<div id="startScreen">
+    <h1>📚3-bob.Tiluvzani makivoppizza testiga tayyorlaning </h1>
+    <p class="oyat">“Robbing seni tark etmadi va g‘azab ham qilmadi.<br> Albatta oxirat sen uchun bu dunyodan yaxshidir.”</p>
+    <h3>🌙 Zuho surasi 93:3-4</h3>
+    <div id="count">3</div>
+</div>
+
+<div class="box">
+    <h2 id="question"></h2>
+    <input type="text" id="answer" placeholder="Javob yozing...">
+    <button onclick="check()">Tekshirish</button>
+    <button onclick="finishQuiz()" style="background:#ff4444; color:white; margin-top:10px;">Testni tugatish</button>
+    <div id="result"></div>
+</div>
+
+<script>
+    /* COUNTDOWN */
+    let time = 3;
+    let timer = setInterval(()=>{
+        document.getElementById("count").innerText = time;
+        time--;
+        if(time < 0){
+            clearInterval(timer);
+            document.getElementById("startScreen").style.display="none";
+        }
+    },1000);
+const quiz = [
+    {question: "'Varaqa' (ворохоочиститель) nima?", correct: "ko'sak chuvish uskunasi"},
+    {question: "Karcho'pcha (Корчёвка, Корчеватель) so'zidan olingan bo'lib, asli nima narsa?", correct: "G'o'zani cho'pini ildizidan qo'poruvchi uskuna"},
+    {question: "Matbuot tilida 'борона', avom tilida 'barana' deb yuritiladigan asbobning asli nomi nima?", correct: "Sixmola"},
+    {question: "Borona (sixmola) nima?", correct: "Shudgor qilingan yerni maydalab tekislaydigan uskuna"},
+    {question: "Qalam ahli 'Цемент' deb yozadigan so'zni avom xalqi nima deb talaffuz qiladi?", correct: "Semon"},
+    {question: "Biz 'Целлофан' deb yozadigan so'zni avom ahli qanday talaffuz qiladi?", correct: "Salafan"},
+    {question: "Olmoniya qayer?", correct: "Germaniya"},
+    {question: "Lubnon qayer?", correct: "Livan"},
+    {question: "Bolgariya bizning tilda qanday aytiladi?", correct: "Bulg'oriston"},
+    {question: "Gruziya o'zbek tilida qanday ataladi?", correct: "Gurjiston"},
+    {question: "Egipet qayer?", correct: "Misr"},
+    {question: "Efiopiyani qanday atasa bo'ladi?", correct: "Xabashiston"},
+    {question: "Quddusni rus tilida qanday atashadi?", correct: "Ierusalim"},
+    {question: "Vengriyani yana nima desa bo'ladi?", correct: "Mojariston"},
+    {question: "Vengrlarni yana qanday atasa bo'ladi?", correct: "Barcha javob to'g'ri"},
+    {question: "Gollandiya, Gomer, Geyne kabi so'zlarda o'zbek tilidagi birinchi farq nima?", correct: "G h qilib o'zgartiriladi"},
+    {question: "1959-yilgi ruscha-o'zbekcha lug'atda Mongoliya qanday atalgan?", correct: "Mo'g'uliston"},
+    {question: "1983-yilgi ruscha-o'zbekcha lug'atda Mo'g'uliston nima deb atalgan?", correct: "Mongol mongoliaga oid"},
+    {question: "O'zimizning 1000 yillik taom nomi turganda lapshaga ruju qo'yganmiz, o'sha taomning o'zimizdagi nomi nima edi?", correct: "Tuppa"},
+    {question: "Odamlar qaysi tarafni biror tog', katta tepalik yohud qishloqni nazarda tutib aytadilar? (Masalan: G'ubdinda bir bukut ko'rindi)", correct: "shimol"},
+    {question: "Shevalarda ana shu 4 arabiy istilohning sof o'zbekcha muqobillari bor. 'To'manbet' qaysi tarafni anglatadi?", correct: "g'arb"},
+    {question: "Orqabet, orqavul qaysi taraf?", correct: "shimol"},
+    {question: "Orqabet, orqavul ba'zi shevalarda qaysi tarafni ifodalaydi?", correct: "g'arb"},
+    {question: "Manglaybet, O'ngbet, Kunyurar qaysi taraf?", correct: "janub"},
+    {question: "Obqora qaysi taraf?", correct: "shimoli-g'arbiy"},
+    {question: "Qozoq tilida 'shig'iz' qaysi taraf?", correct: "Sharq"},
+    {question: "Qozoq tilida 'batis' qaysi taraf?", correct: "g'arb"},
+    {question: "Qozoq tilida 'o'ngtustiq' qaysi taraf?", correct: "janub"},
+    {question: "Adabiy tilimizga qaysi sheva asos qilib olingan?", correct: "qarluq chigil"},
+    {question: "O'zbek tilimizga asos qilib olingan qarluq-chigil shevalariga qaysi viloyat fonetikasi tanlangan?", correct: "toshkent"},
+    {question: "O'zbek tilimizga asos qilib olingan qarluq-chigil shevalariga qaysi viloyat grammatikasi tanlangan?", correct: "farg'ona"},
+    {question: "T.Nafasovning ne-ne soʻz boyliklarimiz koʻmilib yotganini koʻrsatuvchi fidoyi tadqiqoti qaysi?", correct: "qashqadaryo xalq so'zlari"},
+    {question: "Q.Qashqirlining til boyliklarimiz haqidagi fidoyi tadqiqoti qanday nomlanadi?", correct: "Zominning til qomusi"},
+    {question: "'Iroda' so'zi kimga nisbatan ishlatiladi?", correct: "insonga"},
+    {question: "Insonga nisbatan 'iroda' so'zi ishlatilsa, hayvonga nisbatan qaysi so'z ishlatiladi?", correct: "chidamli"},
+    {question: "Rus tilida paxsaning muqobili yo'q, ularda loy ham, tuproq ham nima deyiladi?", correct: "глина"},
+    {question: "'Глинобитная стена' so'zining o'zbekcha muqobili nima?", correct: "paxsa devor"},
+    {question: "'Matras' so'zini ishlatamiz, ammo uning o'rniga qaysi o'zbekcha so'zni ishlatsak bo'lar edi?", correct: "to'shak"},
+    {question: "Ruscha 'каракал' so'zini qoraqal deb emas, shevamizdagi qaysi aniq muqobili bilan tarjima qilish kerak?", correct: "qoraquloq"},
+    {question: "Kiyikning bolasi xalq tilida aslida qanday ataladi?", correct: "kuralay"},
+    {question: "Gavdasi qoramoldek, shoxi buqa shoxiga o'xshash yirik hayvonni 'gnu oxusi' deyishgan, aslida chi?", correct: "aniq muqobil ko'rsatilmagan gnu antilopasi tamom"},
+    {question: "Chiye bo'ri va shoqol bolasi o'zimizning shevada aslida qanday ataladi?", correct: "voy voyak"},
+    {question: "Hayvonlarning ko'payish mavsumi xalq tilida qanday ataladi?", correct: "barcha javob to'g'ri"},
+    {question: "Qo'zilatish mavsumini xalq soddagina qilib qanday ataydi?", correct: "To'l"},
+    {question: "'Yomg'ir mavsumi' o'rniga aslida qanday yozish to'g'riroq?", correct: "barcha javob to'g'ri"},
+    {question: "Ahmad A'zam qanday filmlarni yaxshi ko'rar edi?", correct: "hujjatli filmlarni"},
+    {question: "Yaydoq dalani yozuvchilar rang-baranglikni yo'qotib, oddiygina qilib nima deb yozishadi?", correct: "cho'l"},
+    {question: "Qumli joylarni qisqartirib, avom tushunsa bo'ldi deb nima deb qo'yishadi?", correct: "qumli sahro"},
+    {question: "'Безжизненные скалы' iborasini jonsiz cho'qqilar emas, nima deb tarjima qilgan ma'qul?", correct: "barcha javobalar to'g'ri"},
+    {question: "Xalq togʻning baland choʻqqisini 'osmonoʻpar qoyalar' deb boʻyab-bejab oʻtirmaydi, nima deb qoʻya qoladi?", correct: "nurama"},
+    {question: "Xalq tog'ning qiyalik joyini qisqa qilib nima deb qo'yadi?", correct: "enish"},
+    {question: "Enishning mayda toshli joyi qanday ataladi?", correct: "chag'il"},
+    {question: "Chag'il qanday yer bo'ladi?", correct: "qizima"},
+    {question: "Tog' bag'ridagi ingichka yo'l qisqa qilib qanday ataladi?", correct: "chiziq"},
+    {question: "Qoyaning ustki qismi qanday ataladi?", correct: "qiroq"},
+    {question: "Qoyaning uchki qismi nima deb ataladi?", correct: "xuchchi"},
+    {question: "Uzunasiga cho'zilgan qoya qanday ataladi?", correct: "shiram"},
+    {question: "Cho'qqining eng uch qismi nima deb ataladi?", correct: "sala"},
+    {question: "Daralarning aylana nuqtasi nima deyiladi?", correct: "qasnoq"},
+    {question: "Qir cho'qqining baland uchi nima deb ataladi?", correct: "qat"},
+    {question: "Qir cho'qqining baland uchida faqat nima yuradi?", correct: "arxar"},
+    {question: "Arxar nima?", correct: "toy qo'yi"},
+    {question: "Yolg'izoyoq yo'li bo'lgan enish nima deb ataladi?", correct: "qatal"},
+    {question: "Tog'li hududlardagi tabiiy chuqurlik, yashin urib paydo bo'lgan joy nima deb ataladi?", correct: "chuqun"},
+    {question: "Mayda toshli qiya yonbag'ir nima deyiladi?", correct: "chag'il"},
+    {question: "Dara ichida yurish juda qiyin bo'lgan chuqur va toshloq joy nima deb ataladi?", correct: "chungul"},
+    {question: "Quyidan yuqoriga ketgan qat-qat yassi tosh uyumi nima deb ataladi?", correct: "qasag'a"},
+    {question: "Qora uy tuvurlug'ining boshiga tiqilgan tasma nima deb ataladi?", correct: "uyur bog'"},
+    {question: "Qora uyda erganakdan tortib keraganing chiy yoyiladigan qismigacha yopiladigan 4 bo'lak kigiz nima deyiladi?", correct: "tuvurlik"},
+    {question: "Qora uy, mol qo'ra va qo'tonlarning eshigi nima deb ataladi?", correct: "erganak"},
+    {question: "Ona tilimiz tarixi asli necha ming yillikka borib taqaladi?", correct: "4 000"},
+    {question: "Davlat bir qanaqadir umumiy makon emas, u — ...?", correct: "har birimiz"}
+];
+    let i = 0;
+    let score = 0;
+
+    function load(){
+        document.getElementById("result").innerHTML = "";
+        document.getElementById("answer").value = "";
+        document.getElementById("question").innerText = (i + 1) + "/" + quiz.length + ". " + quiz[i].question;
+    }
+
+    function check(){
+        let user = document.getElementById("answer").value.toLowerCase().trim();
+        let correct = quiz[i].correct.toLowerCase();
+
+        if(user === correct){
+            document.getElementById("result").innerHTML = "✅ To'g'ri";
+            score++;
+        } else {
+            document.getElementById("result").innerHTML = "❌ Noto'g'ri. To'g'ri javob: " + quiz[i].correct;
+        }
+
+        setTimeout(()=>{
+            i++;
+            if(i < quiz.length){
+                load();
+            } else {
+                finishQuiz();
+            }
+        }, 1500);
+    }
+
+    function finishQuiz() {
+        i = quiz.length;
+        document.getElementById("question").innerText = "🎉 Quiz Yakunlandi";
+        document.getElementById("answer").style.display = "none";
+        
+        document.querySelectorAll(".box > button").forEach(b => b.style.display = "none");
+        
+        document.getElementById("result").innerHTML = `
+            <div style="font-size:24px; color:#fff; line-height:2;">
+                ✅ To'g'ri: <b style="color:#00ff99;">${score}</b><br>
+                ❌ Noto'g'ri: <b style="color:#ff4444;">${quiz.length - score}</b><br>
+                Yakuniy natija: <b>${score} / ${quiz.length}</b>
+            </div>
+            <button onclick="location.reload()" style="background:#00ff99; margin-top:20px;">🔄 Qayta ishlash</button>
+        `;
+    }
+
+    load();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7-Bob. Adabiy asar-Til xodisasi. Yoshlik jurnalida suhbat</title>
+<style>
+    body { margin:0; padding:0; background:#111; font-family:Arial; color:white; display:flex; justify-content:center; align-items:center; height:100vh; overflow:hidden; }
+    #startScreen { position:fixed; top:0; left:0; width:100%; height:100%; background:#111; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; z-index:9999; padding:20px; }
+    #startScreen h1 { color:#00ff99; font-size:50px; }
+    .oyat { max-width:800px; font-size:28px; line-height:1.8; color:#ddd; margin-top:20px; }
+    #startScreen h3 { color:#00ff99; margin-top:20px; }
+    #count { font-size:100px; color:#00ff99; margin-top:40px; animation:pulse 1s infinite; }
+    @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.2);} 100%{transform:scale(1);} }
+    .box { width:650px; background:#1e1e1e; padding:30px; border-radius:20px; text-align:center; box-shadow:0 0 20px black; }
+    h2 { color:#00ff99; }
+    input { width:100%; padding:15px; margin-top:15px; border:none; border-radius:10px; font-size:18px; }
+    button { width:100%; padding:15px; margin-top:15px; border:none; border-radius:10px; background:#00ff99; color:black; font-weight:bold; cursor:pointer; font-size:18px; }
+    #result { margin-top:15px; font-size:20px; }
+</style>
+</head>
+<body>
+
+<div id="startScreen">
+    <h1>📚1-Bob.Buzuq til havosi </h1>
+    <p class="oyat">“Robbing seni tark etmadi va g‘azab ham qilmadi.<br> Albatta oxirat sen uchun bu dunyodan yaxshidir.”</p>
+    <h3>🌙 Zuho surasi 93:3-4</h3>
+    <div id="count">3</div>
+</div>
+
+<div class="box">
+    <h2 id="question"></h2>
+    <input type="text" id="answer" placeholder="Javob yozing...">
+    <button onclick="check()">Tekshirish</button>
+    <button onclick="finishQuiz()" style="background:#ff4444; color:white; margin-top:10px;">Testni tugatish</button>
+    <div id="result"></div>
+</div>
+
+<script>
+    /* COUNTDOWN */
+    let time = 3;
+    let timer = setInterval(()=>{
+        document.getElementById("count").innerText = time;
+        time--;
+        if(time < 0){
+            clearInterval(timer);
+            document.getElementById("startScreen").style.display="none";
+        }
+    },1000);
+
+const quiz = [
+    {question: "O'tgan asrning nechchinchi yillarigacha qissa yozgan odam mashhur bo'lib ketar edi?", correct: "90"},
+    {question: "2-yil burun yozuvchilar uyushmasi yig'inida mustaqillik yillarida nechtadan ortiq roman yozilganini ro'yxatini ko'rsatishdi?", correct: "120"},
+    {question: "... ham nasr yo'nalishining ravish yo'nalishlarini yaxshi o'zlashtirgan, poetikasini his eta olganlar yozganlar bu ham avvalo muallifning malaka chig'irig'idan o'tib jamoatchilikning yaxshi kutib olishiga shuri yetgan taqdirda e'lon qilinardi?", correct: "qissa"},
+    {question: "Qaysi yosh adiblarning tili badiyati poetikasi bilan yarq etib ko'zga tashlangan?", correct: "barcha javoblar to'g'ri"},
+    {question: "Asarlarning har bir jumlasiga qaraydigan ...kabi qahri qattiq sinchilarning nazaridan qolish va ularga ro'paro bo'lish doim kun tartibida turar edi?", correct: "Vahob Ro'zimatov"},
+    {question: "Bemaza yozibsan deb nishini sanchib oladigan ... ka'bi tahrir pirlarining nazaridan qolish va ularga ro'paro bo'lish doim kun tartibida turar edi?", correct: "Mahmud Sa'diy"},
+    {question: "Bugun Teekin tahrir qilib beradigan zaxmatkash ... bozori o'tdi. Ko'p narsalar qanday yozilgan bo'lsa shunday o'tib ketyapti?", correct: "mardikorlar"},
+    {question: "Zahmatkash mardikorlarning bo'lishing yana bitta yaxshi tarafi bor nima?", correct: "sunniylikka sherik axtarilmaydi"},
+    {question: "Nima o'ziga nisbatan behurmatlik va kitob ahliga nisbatan axloqsizlik? Axloqsizlikni so'kkandan ko'ra uni quloqni bekitib eshitmagan afzal?", correct: "Til badiyatini egallamay asar yozish"},
+    {question: "O'sha majlisda o'sha 120 ta romanni tayyorlagan mutaxassis tomonidan nega ... roman yozmayapti degan xurmacha do'q ham urilgan edi?", correct: "Erkin A'zam"},
+    {question: "Nazarimda birgina ... ularni muttasil o'qib erinmay fazilatlar topib maqola yozib yotibdi, kim?", correct: "Qozoqboy Yo'ldosh"},
+    {question: "Biz talaba edik ... tanqidchi bot-bot adabiyot gazetasida yeng shimarib katta olimlarga ham qo'rqmay tashlanib qolardi va haq gapni isbotlar edi?", correct: "Ahmad A'zam"},
+    {question: "Salobatlari bilan qo'r to'qib adabiyot darvozasiga kirmoqchi shunchaki havasmandlarni hayiqtirib turadigan ustozlarimiz o'tib ketdilar, u ustozlar kimlar edi?", correct: "Barcha javoblar to'g'ri"},
+    {question: "Bu zamon qayerga qaqrab ketyapti, buyuk adiblarimizning asarlari ham o'qilmay qolayapti, bariga sababchi nima?", correct: "barcha javob to'g'ri"},
+    {question: "Demoqchimanki adabiy tilimiz rivoji ... yilning oxirigacha yetib keldi keyin hayot tashvishlariga o'ralashdik?", correct: "80"},
+    {question: "Erkin A'zam necha yoshidan keyin roman e'lon qildi?", correct: "60"},
+    {question: "Qaysi yozuvchi uchun roman yozish bu so'z mas'uliyati va vijdon ishi?", correct: "Erkin A'zam"},
+    {question: "Biz ko'nikib qolgan silliq mavhumot va mavhumday tuyuluvchi ziddiyatlarga qarama-qarshi o'laroq favqulodda reallikni ko'rganman, u payt yoshlik jurnalida yosh xodim edim, kimning qaysi asari?", correct: "Erkin A'zam Asqartog' tomonlarda"},
+    {question: "Erkin A'zam aytgan ... odam odam bilan bemalol ochilib suhbatlashgani singari tabiiy bo'lishi kerak?", correct: "Proza odam"},
+    {question: "Bizga dunyoning sara asarlarini mutola qilish o'rganish urf edi kimlarga?", correct: "49 yil avlodlariga"},
+    {question: "Ahmad A'zam rus tilini o'qishda qayerda birdaniga J. Selinjerning 'Nad propastyu po rji' asaridan boshlaganman?", correct: "Harbiyda"},
+    {question: "Harbiyda qayerning kutubxonasi bor edi?", correct: "divizionning"},
+    {question: "Qaysi asarlarning tili entiktiradigan hayajonlarga tortib ketadi Ahmad A'zamni?", correct: "barcha javob to'g'ri"},
+    {question: "Ahmad A'zamning yoshligidan tiliga mahliyo bo'lgan asari qaysi?", correct: "barcha javob to'g'ri"},
+    {question: "Ahmad A'zamning tanqidchilikni tashlab yozuvchi bo'lishga undagan omil nima?", correct: "tili oxorli toza bo'lgan asarlarni o'qishni sevish"},
+    {question: "Ahmad A'zamning qaysi universitetda Navoiyning asarlari bilan shug'ullanishi tarjimon va yozuvchi bo'lishida turtki bo'lgan?", correct: "samarqand"},
+    {question: "Bir maromda uzmay yozolmagan, bir ishda ishlagan paytlari yozmagan shu uchun har qanday ishda necha yildan ko'p ishlamagan?", correct: "2"},
+    {question: "Ahmad A'zam qayerdagina 11 yildan ortiqroq ishlaganini ta'kidlaydi?", correct: "11"},
+    {question: "Ahmad A'zam televideniyeda ishlagan payti ham yozmadi, faqat muharririyat almashgandagi nechta hikoyani inobatga olmasa?", correct: "3"},
+    {question: "Ahmad A'zamning dardda yotib dard bilan yozgan asari qaysi edi?", correct: "Ro'yo"},
+    {question: "Yozuvchilardan biri bundan qancha yil burun 'Bu yog'iga adabiyot elitalashadi' degan edi va o'shandan beri adabiyot jim?", correct: "15"},
+    {question: "Nechchinchi yili yozuvchilar uyushmasiga Parijdan 'Aksion Poetik' degan jurnal kirib keladi?", correct: "1987"},
+    {question: "Gapdan gap chiqib qaysimizdir ... larning she'riy to'plamlari 80 000-100 000 ta nashr etilishini aytganda fransuzlar angrayib qolishadi?", correct: "barcha javoblar to'g'ri"},
+    {question: "Men fransuzlarga sizlarda qancha tiraj bosib chiqariladi deganda qancha bosib chiqarilishini aytadi va buni ham shoirning o'zi nashr ettirishini aytishadi?", correct: "200"},
+    {question: "Men ulardan yaxshi shoirlaringizning tiraji qancha deb so'rashganda qanday javob qaytarishadi?", correct: "500"},
+    {question: "Fransiyada yashayotgan Nobel mukofoti laureati Semyuel Bekket asarlari qancha nusxada bosib chiqariladi deb so'raganda qanday javob qaytarishadi?", correct: "Bekkelni faqat tushungan o'qiydi"},
+    {question: "Bekket teatri ham bo'lsa unga ... ta muhlisgina ishtirok etadi deb aytadi?", correct: "50-60"},
+    {question: "Ulardan Chingiz Aytmatovning asarlari katta tirajda bosilar ekan va undan qancha bosib chiqariladi deganda qanday javob qaytarishadi?", correct: "u Bestseller"},
+    {question: "Qanday adabiyot umuman adabiy jarayonni oziqlantirib bachki novdalarni qaychilab turadi?", correct: "Elitar"},
+    {question: "Xalqona ohang va dardlar bilan qissalar yozganda sevilib va sevib o'qishga kirishganmiz kimning asarlarini?", correct: "Tog'ay Murod"},
+    {question: "Azaliy-mangu jarayon nima?", correct: "Badiiy tafakkur harakati"},
+    {question: "Menga nisbatan yosh ammo katta adib sifatida tanilgan kimlarni misol tariqasida ko'rsatadi Ahmad A'zam?", correct: "barcha javob to'g'ri"},
+    {question: "Taniqli yozuvchi Murod Muhammad Do'st Shoir Fahriyor bilan suhbatida yaponiyalik X. Murokami, Braziliyalik P. Koelolarni nima deb ataydi?", correct: "puflab shishirilgan daholar"},
+    {question: "Qaysi romanlarni orqasi keng ziyolilar ham o'qiyapti deb aytishimiz mumkin?", correct: "barcha javob to'g'ri"},
+    {question: "Qaysi fond adabiyotimizning ko'zga ko'rinarli asarlarini chet tillariga tarjima qilib nashr etyapti?", correct: "ijod"}
+];
+
+    let i = 0;
+    let score = 0;
+
+    function load(){
+        document.getElementById("result").innerHTML = "";
+        document.getElementById("answer").value = "";
+        document.getElementById("question").innerText = (i + 1) + "/" + quiz.length + ". " + quiz[i].question;
+    }
+
+    function check(){
+        let user = document.getElementById("answer").value.toLowerCase().trim();
+        let correct = quiz[i].correct.toLowerCase();
+
+        if(user === correct){
+            document.getElementById("result").innerHTML = "✅ To'g'ri";
+            score++;
+        } else {
+            document.getElementById("result").innerHTML = "❌ Noto'g'ri. To'g'ri javob: " + quiz[i].correct;
+        }
+
+        setTimeout(()=>{
+            i++;
+            if(i < quiz.length){
+                load();
+            } else {
+                finishQuiz();
+            }
+        }, 1500);
+    }
+
+    function finishQuiz() {
+        i = quiz.length;
+        document.getElementById("question").innerText = "🎉 Quiz Yakunlandi";
+        document.getElementById("answer").style.display = "none";
+        
+        document.querySelectorAll(".box > button").forEach(b => b.style.display = "none");
+        
+        document.getElementById("result").innerHTML = `
+            <div style="font-size:24px; color:#fff; line-height:2;">
+                ✅ To'g'ri: <b style="color:#00ff99;">${score}</b><br>
+                ❌ Noto'g'ri: <b style="color:#ff4444;">${quiz.length - score}</b><br>
+                Yakuniy natija: <b>${score} / ${quiz.length}</b>
+            </div>
+            <button onclick="location.reload()" style="background:#00ff99; margin-top:20px;">🔄 Qayta ishlash</button>
+        `;
+    }
+
+    load();
+</script>
+
+</body>
+</html>

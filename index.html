@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yosh Kitobxon 2026-2027-yil 20-30 yosh toifasi</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background: #111; 
+            font-family: Arial, sans-serif; 
+            color: white; 
+            position: relative; 
+            overflow-x: hidden; 
+        }
+        
+        /* Yulduzlar uchun orqa fon */
+        #stars-layer {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            z-index: -1; 
+            pointer-events: none;
+            opacity: 0;
+            animation: mainFadeIn 1s ease forwards 7.5s;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        header { 
+            background: #1e1e1e; 
+            padding: 25px; 
+            text-align: center; 
+            font-size: 28px; 
+            font-weight: bold; 
+            color: #00ff99; 
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            opacity: 0;
+            animation: mainFadeIn 1s ease forwards 7.5s;
+        }
+
+        .container { 
+            padding: 20px; 
+            opacity: 0;
+            animation: mainFadeIn 1s ease forwards 7.5s;
+        }
+
+        @keyframes mainFadeIn {
+            to { opacity: 1; }
+        }
+
+        /* ===== SN BREND LOGOTIPI (header ichida) ===== */
+        .sn-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00ff99, #00c2ff);
+            color: #111;
+            font-weight: 900;
+            font-family: 'Georgia', 'Lucida Handwriting', cursive, serif;
+            font-style: italic;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+            opacity: 0;
+            transform: scale(0);
+            box-shadow: 0 0 10px rgba(0,255,153,0.7), 0 0 20px rgba(0,194,255,0.4);
+            animation: snAppear 0.5s ease forwards 7.4s,
+                       snFloat 2.4s ease-in-out infinite 7.9s;
+        }
+
+        @keyframes snAppear {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes snFloat {
+            0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 10px rgba(0,255,153,0.7), 0 0 20px rgba(0,194,255,0.4); }
+            50% { transform: translateY(-4px) scale(1.05); box-shadow: 0 0 16px rgba(0,255,153,1), 0 0 30px rgba(0,194,255,0.7); }
+        }
+
+        /* ===== SN BREND - ATOM VA INTEGRALLASHGAN ELEKTRONLAR INTROSI ===== */
+        .brand-intro {
+            position: fixed;
+            inset: 0;
+            z-index: 99;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .atom-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            opacity: 0;
+            transform: scale(0);
+            animation: 
+                bigSnAppear 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 3.5s,
+                infinityFly 3s ease-in-out forwards 4.5s;
+        }
+
+        .brand-intro-circle {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: #111;
+            border: 3px solid #00ff99;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 54px;
+            font-weight: 900;
+            font-family: 'Georgia', 'Lucida Handwriting', cursive, serif;
+            font-style: italic;
+            color: #00ff99;
+            z-index: 10;
+            text-shadow: 0 0 15px rgba(0,255,153,0.8);
+            box-shadow: 0 0 30px rgba(0,255,153,0.4), inset 0 0 25px rgba(0,255,153,0.3);
+        }
+
+        /* Atom yo'llari (Yaqqol ko'rinadigan qalin neon chiziqlar) */
+        .atom-orbit {
+            position: absolute;
+            border: 3px solid transparent;
+            border-radius: 50%;
+            width: 280px;
+            height: 100px;
+            transform-style: preserve-3d;
+        }
+
+        /* Har bir yo'ldagi aylanma elektron (Yorqin neon nuqtalar) */
+        .atom-orbit::after {
+            content: "";
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            top: -7px;
+            left: 50%;
+            margin-left: -7px;
+        }
+
+        /* 1-Orbita: Yashil neon */
+        .atom-orbit:nth-child(1) {
+            border-color: rgba(0, 255, 153, 0.4);
+            transform: rotateX(70deg) rotateY(0deg);
+            animation: orbitAnim1 2s linear infinite;
+        }
+        .atom-orbit:nth-child(1)::after {
+            background: #00ff99;
+            box-shadow: 0 0 15px #00ff99, 0 0 25px #00ff99;
+        }
+
+        /* 2-Orbita: Ko'k neon */
+        .atom-orbit:nth-child(2) {
+            border-color: rgba(0, 194, 255, 0.4);
+            transform: rotateX(70deg) rotateY(60deg);
+            animation: orbitAnim2 2s linear infinite;
+        }
+        .atom-orbit:nth-child(2)::after {
+            background: #00c2ff;
+            box-shadow: 0 0 15px #00c2ff, 0 0 25px #00c2ff;
+        }
+
+        /* 3-Orbita: Pushti neon */
+        .atom-orbit:nth-child(3) {
+            border-color: rgba(255, 0, 153, 0.4);
+            transform: rotateX(70deg) rotateY(-60deg);
+            animation: orbitAnim3 2s linear infinite;
+        }
+        .atom-orbit:nth-child(3)::after {
+            background: #ff0099;
+            box-shadow: 0 0 15px #ff0099, 0 0 25px #ff0099;
+        }
+
+        /* Elektronlarning uzluksiz aylanish animatsiyasi */
+        @keyframes orbitAnim1 { 100% { transform: rotateX(70deg) rotateY(0deg) rotateZ(360deg); } }
+        @keyframes orbitAnim2 { 100% { transform: rotateX(70deg) rotateY(60deg) rotateZ(360deg); } }
+        @keyframes orbitAnim3 { 100% { transform: rotateX(70deg) rotateY(-60deg) rotateZ(360deg); } }
+
+        /* Katta SN paydo bo'lishi */
+        @keyframes bigSnAppear {
+            0% { opacity: 0; transform: scale(0) rotate(-30deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        /* Cheksizlik shaklida uchib joyiga borish */
+        @keyframes infinityFly {
+            0% { transform: translate(0, 0) scale(1); }
+            20% { transform: translate(90px, -45px) scale(0.95); }
+            40% { transform: translate(-90px, 45px) scale(0.9); }
+            60% { transform: translate(90px, 45px) scale(0.85); }
+            80% { transform: translate(-90px, -45px) scale(0.8); }
+            100% { 
+                transform: translate(var(--move-x, -35vw), var(--move-y, -45vh)) scale(0.12); 
+                opacity: 0;
+            }
+        }
+
+        /* Kitoblar Gridi */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+            gap: 40px; 
+        }
+
+        .book { 
+            background: #1e1e1e; 
+            border-radius: 20px; 
+            transition: 0.4s; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.5); 
+            text-decoration: none; 
+            color: white; 
+            display: flex;
+            flex-direction: column; 
+            border: 2px solid transparent; 
+            padding: 15px;
+        }
+
+        .book:hover { 
+            transform: scale(1.03); 
+            box-shadow: 0 0 20px rgba(0,255,153,0.3); 
+            border: 2px solid #00ff99; 
+        }
+
+        .book img { 
+            width: 100%; 
+            height: 280px; 
+            object-fit: cover; 
+            border-radius: 12px;
+        }
+
+        .title-box { 
+            background: #222; 
+            margin-top: 15px; 
+            padding: 15px; 
+            border-radius: 10px; 
+            text-align: center; 
+            height: 85px; 
+            display: flex;
+            align-items: center; 
+            justify-content: center;
+            border-top: 3px solid #FFD700; 
+        }
+
+        .book p { 
+            font-size: 15px; 
+            font-weight: bold; 
+            margin: 0; 
+            color: white; 
+        }
+
+        @media(max-width:600px) {
+            .grid { grid-template-columns: repeat(1, 1fr); }
+            header { font-size: 20px; }
+        }
+
+        /* ===== INTRO: GULLAR BO'RONI ===== */
+        .intro-screen {
+            position: fixed;
+            inset: 0;
+            background: #06030c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            animation: fadeOutIntro 0.8s cubic-bezier(0.7, 0, 0.3, 1) forwards 3.6s;
+        }
+
+        @keyframes fadeOutIntro {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        .vortex-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            mix-blend-mode: screen;
+        }
+
+        .intro-petal {
+            position: absolute;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #ffd1dc 45%, #ff8fb1);
+            border-radius: 70% 30% 70% 30%;
+            opacity: 0;
+            transform-origin: center;
+            animation: hyperTornado var(--dur) cubic-bezier(0.25, 1, 0.3, 1) forwards var(--del);
+        }
+
+        @keyframes hyperTornado {
+            0% { transform: rotate(var(--rot)) translateX(var(--rad-start)) rotate(0deg) scale(0); opacity: 0; }
+            5% { opacity: 1; }
+            65% { transform: rotate(calc(var(--rot) + 2520deg)) translateX(var(--rad-end)) rotate(2520deg) scale(var(--sc)); opacity: 0.95; }
+            80%, 100% { transform: rotate(calc(var(--rot) + 2880deg)) translateX(0) rotate(3240deg) scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="intro-screen">
+        <div class="vortex-container" id="vortex"></div>
+    </div>
+
+    <div class="brand-intro">
+        <div class="atom-container" id="atom-brand">
+            <div class="atom-orbit"></div>
+            <div class="atom-orbit"></div>
+            <div class="atom-orbit"></div>
+            <div class="brand-intro-circle">SN</div>
+        </div>
+    </div>
+
+    <div id="stars-layer"></div>
+
+    <header>
+        <span class="sn-logo" id="header-logo">SN</span>
+        📚 Yosh Kitobxon 2026-2027 (20-30 yosh)
+    </header>
+
+    <div class="container">
+        <div class="grid">
+            <a href="momoqaldiroq ostida sayr.html" target="_blank" class="book">
+                <img src="sayr.jpg" alt="Kitob muqovasi">
+                <div class="title-box"><p>E'rkin A'zam  <br> Momoqaldiroq ostida sayr</p></div>
+            </a>
+            
+            <a href="kiptikda qolgan tong chiqish sanasi.html" target="_blank" class="book">
+                <img src="til.jpg" alt="Kitob muqovasi">
+                <div class="title-box"><p>Ahmad A'zam <br> Til nomusi </p></div>
+            </a>
+            
+            <a href="kiptikda qolgan tong chiqish sanasi.html" target="_blank" class="book">
+                <img src="izidan.jpg" alt="Kitob muqovasi">
+                <div class="title-box"><p>Eshqobil Shukur <br> Bobo so'z izidan</p></div>
+            </a>
+
+            <a href="kiptikda qolgan tong chiqish sanasi.html" target="_blank" class="book">
+                <img src="tong.jpg" alt="Kitob muqovasi">
+                <div class="title-box"><p>Said Ahmad <br> Kiprikda qolgan tong</p></div>
+            </a>
+
+            <a href="kiptikda qolgan tong chiqish sanasi.html" target="_blank" class="book">
+                <img src="vatan.jpg" alt="Kitob muqovasi">
+                <div class="title-box"><p>A'zam Xoshimiy <br> Alvido Vatan</p></div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Logotipni o'z joyiga (header ichidagi kichik logotip koordinatasiga) silliq uchirish hisob-kitobi
+        function adjustFlyCoords() {
+            const brand = document.getElementById('atom-brand');
+            const logo = document.getElementById('header-logo');
+            if(brand && logo) {
+                const bRect = brand.getBoundingClientRect();
+                const lRect = logo.getBoundingClientRect();
+                const xDiff = lRect.left + (lRect.width/2) - (window.innerWidth/2);
+                const yDiff = lRect.top + (lRect.height/2) - (window.innerHeight/2);
+                brand.style.setProperty('--move-x', xDiff + 'px');
+                brand.style.setProperty('--move-y', yDiff + 'px');
+            }
+        }
+        window.addEventListener('load', adjustFlyCoords);
+        window.addEventListener('resize', adjustFlyCoords);
+
+        // Gullar bo'ronini yaratish (Vortex effekti)
+        const vortex = document.getElementById('vortex');
+        const totalIntroPetals = 1500;
+        for (let i = 0; i < totalIntroPetals; i++) {
+            const petal = document.createElement('div');
+            petal.className = 'intro-petal';
+            const rot = Math.random() * 360;
+            const radStart = (50 + Math.random() * 45) + 'vw';
+            const radEnd = (100 + Math.random() * 450) + 'px';
+            const dur = (1.5 + Math.random() * 1.2).toFixed(2) + 's';
+            const del = (Math.random() * 2.2).toFixed(2) + 's';
+            const size = Math.floor(6 + Math.random() * 10);
+            const sc = (0.7 + Math.random() * 0.6).toFixed(1);
+
+            petal.style.setProperty('--rot', rot + 'deg');
+            petal.style.setProperty('--rad-start', radStart);
+            petal.style.setProperty('--rad-end', radEnd);
+            petal.style.setProperty('--dur', dur);
+            petal.style.setProperty('--del', del);
+            petal.style.setProperty('--sc', sc);
+            petal.style.width = size + 'px';
+            petal.style.height = size + 'px';
+            vortex.appendChild(petal);
+        }
+
+        // Orqa fondagi miltillovchi kosmik yulduzlar
+        const starsLayer = document.getElementById('stars-layer');
+        for(let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + "%";
+            star.style.top = Math.random() * 100 + "%";
+            const size = Math.random() * 2 + 1;
+            star.style.width = size + "px";
+            star.style.height = size + "px";
+            star.style.setProperty('--duration', (Math.random() * 3 + 2) + "s");
+            star.style.animationDelay = Math.random() * 5 + "s";
+            starsLayer.appendChild(star);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taymer</title>
+    <style>
+        body { margin: 0; padding: 0; background: #111; font-family: Arial; color: white; position: relative; overflow-x: hidden; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        
+        /* Yulduzlar uchun orqa fon */
+        #stars-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* ===== TAYMER DIZAYNI ===== */
+        .timer-container {
+            max-width: 600px;
+            width: 90%;
+            background: #1e1e1e;
+            padding: 30px 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .timer-title {
+            font-size: 20px;
+            color: #00c2ff;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .timer-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .timer-segment {
+            background: #222;
+            padding: 15px 20px;
+            border-radius: 8px;
+            min-width: 75px;
+            border-bottom: 3px solid #00ff99;
+        }
+
+        .timer-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .timer-label {
+            font-size: 13px;
+            color: #aaa;
+            margin-top: 5px;
+            text-transform: lowercase;
+        }
+
+        @media(max-width:600px) {
+            .timer-number { font-size: 26px; }
+            .timer-segment { min-width: 55px; padding: 10px 10px; }
+            .timer-title { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="stars-layer"></div>
+
+    <!-- ===== TAYMER INTERFEYSI ===== -->
+    <div class="timer-container">
+        <div class="timer-title">Chiqish sanasiga shuncha vaqt qoldi:</div>
+        <div class="timer-display">
+            <div class="timer-segment">
+                <div id="days" class="timer-number">00</div>
+                <div class="timer-label">Kun</div>
+            </div>
+            <div class="timer-segment">
+                <div id="hours" class="timer-number">00</div>
+                <div class="timer-label">Soat</div>
+            </div>
+            <div class="timer-segment">
+                <div id="minutes" class="timer-number">00</div>
+                <div class="timer-label">Daqiqa</div>
+            </div>
+            <div class="timer-segment">
+                <div id="seconds" class="timer-number">00</div>
+                <div class="timer-label">Soniya</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== ORQAGA HISOBLASH SKRIPTI =====
+        function startCountdown() {
+            const targetDate = new Date("July 17, 2026 00:00:00").getTime();
+
+            const interval = setInterval(function() {
+                const now = new Date().getTime();
+                const difference = targetDate - now;
+
+                if (difference <= 0) {
+                    clearInterval(interval);
+                    document.querySelector('.timer-title').innerHTML = "Chiqish sanasi keldi!";
+                    document.getElementById("days").innerHTML = "00";
+                    document.getElementById("hours").innerHTML = "00";
+                    document.getElementById("minutes").innerHTML = "00";
+                    document.getElementById("seconds").innerHTML = "00";
+                    return;
+                }
+
+                const d = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((difference % (1000 * 60)) / 1000);
+
+                document.getElementById("days").innerHTML = String(d).padStart(2, '0');
+                document.getElementById("hours").innerHTML = String(h).padStart(2, '0');
+                document.getElementById("minutes").innerHTML = String(m).padStart(2, '0');
+                document.getElementById("seconds").innerHTML = String(s).padStart(2, '0');
+            }, 1000);
+        }
+        
+        startCountdown();
+
+        // ===== YULDUZLAR FON SKRIPTI =====
+        const starsLayer = document.getElementById('stars-layer');
+        for(let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + "%";
+            star.style.top = Math.random() * 100 + "%";
+            const size = Math.random() * 2 + 1;
+            star.style.width = size + "px";
+            star.style.height = size + "px";
+            star.style.setProperty('--duration', (Math.random() * 3 + 2) + "s");
+            star.style.animationDelay = Math.random() * 5 + "s";
+            starsLayer.appendChild(star);
+        }
+    </script>
+</body>
+</html>

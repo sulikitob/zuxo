@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1-Bob: Buzuq til havosi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background: linear-gradient(135deg, #050505, #121212, #1d1d1d); 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            min-height: 100vh; 
+        }
+
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #050505; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000;
+            transition: opacity 0.8s ease;
+        }
+        
+        .content-box { text-align: center; margin-bottom: 50px; }
+        
+        #countdown { 
+            position: absolute; bottom: 50px;
+            font-size: 80px; color: #00ff99; font-weight: bold;
+            text-shadow: 0 0 15px rgba(0,255,153,0.4);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.5; }
+        }
+
+        .quiz-box { 
+            width: 100%; max-width: 600px; background: #1b1b1b; padding: 30px; 
+            border-radius: 25px; box-shadow: 0 0 35px rgba(0, 255, 150, 0.2); 
+            text-align: center; margin-top: 50px;
+        }
+        h2 { color: #00ff99; margin-bottom: 20px; font-size: 22px; }
+        .option { 
+            display: block; width: 100%; padding: 15px; margin: 10px 0; 
+            background: #2a2a2a; border: 2px solid #333; border-radius: 15px; 
+            cursor: pointer; transition: 0.3s; text-align: left;
+        }
+        .option:hover { border-color: #00ff99; }
+        .correct { 
+            background: #00ff99 !important; color: black; font-weight: bold; 
+            animation: bubbleEffect 0.5s ease-out;
+        }
+        @keyframes bubbleEffect {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 255, 153, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0); }
+        }
+        .wrong { background: #ff4d4d !important; color: white; }
+        .btn-finish { 
+            width: 100%; padding: 15px; background: transparent; border: 2px solid #00ff99; 
+            color: #00ff99; border-radius: 15px; cursor: pointer; margin-top: 20px; 
+            font-weight: bold; transition: 0.3s; 
+        }
+        .btn-finish:hover { background: #00ff99; color: black; }
+    </style>
+</head>
+<body onload="startTimer()">
+
+<div id="intro-screen">
+    <div class="content-box">
+        <h1 style="color:#00ff99; font-size: 32px;">📚 1-Bob. Se'l (xotimaning boshi)</h1>
+        <p style="margin: 20px; font-size: 18px; max-width: 600px; line-height: 1.6; color: #ccc;">
+            "Robbing seni tark etmadi va g‘azab ham qilmadi.
+            <br><br><small style="color:#00ff99;">🌙 Zuho surasi 93:3</small>
+        </p>
+    </div>
+    <div id="countdown">3</div>
+</div>
+
+<div class="quiz-box" id="quiz">
+    <h2 id="question">Yuklanmoqda...</h2>
+    <div id="options"></div>
+    <button class="btn-finish" onclick="finishQuiz()">Testni yakunlash</button>
+</div>
+
+<script>
+function startTimer() {
+    let count = 3;
+    let disp = document.getElementById("countdown");
+    let timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+            disp.innerText = count;
+        } else if (count === 0) {
+            disp.innerText = "Boshladik!";
+        } else {
+            clearInterval(timer);
+            document.getElementById("intro-screen").style.opacity = "0";
+            setTimeout(() => {
+                document.getElementById("intro-screen").style.display = "none";
+                loadQ();
+            }, 800);
+        }
+    }, 1000);
+}
+
+const quizData = [
+    {q: "Toshkentga kelganining nechanchi kuni peshinda unga Xoji bobo telefon qilgan edi?", a: ["1-kuni", "2-kuni", "3-kuni", "4-kuni"], correct: "3-kuni"},
+    {q: "Bu kishi hech odamga o'xshab gapirolmaydi, bir og'izgina gapni ham albatta ohangjamaga solib, qo'yib bersangiz uch tilda birdek, Xayyomdan ruboiylar qo'shib aytsa, kim?", a: ["Xoji bobo", "Jo'rabek", "Iskandar", "Rasul aka"], correct: "Xoji bobo"},
+    {q: "Iskandarning nega qaynota va qaynonasini ko'rishga ko'zi yo'q?", a: ["Xasisligi", "Yasama muomala", "Qarzdorligi", "Janjallashgani"], correct: "Yasama muomala"},
+    {q: "Xoji bobo va xotini Toshkentda qancha vaqt yashab ketishgan edi?", a: ["1 yildan kam", "1 yildan ko'roq", "2 yil", "3 yil"], correct: "1 yildan ko'roq"},
+    {q: "Xoji bobolar Toshkentning qayerida yashab ketishgan edi?", a: ["Markazda", "Tog' qishlog'ida", "Eski shaharda", "Yangi tumanda"], correct: "Tog' qishlog'ida"},
+    {q: "Xoji bobo va xotini Toshkentga uzoq yillar nima bahona borishgan edi?", a: ["Ish", "Davolanish", "Bebiliska sayohati", "Qarindosh ko'rish"], correct: "Bebiliska sayohati"},
+    {q: "'Balchiqdan chiqqan beklar' iborasi kimlarga nisbatan aytilgan?", a: ["Eski boylarga", "Yangi boylarga", "Kambag'allarga", "Olimlarga"], correct: "Yangi boylarga"},
+    {q: "Indamas, odamovi, qornini g'amlab, sigaretini tutatib tursa bas, kim?", a: ["Jo'rabek", "Iskandar", "Xoji bobo", "Gena"], correct: "Jo'rabek"},
+    {q: "Iskandar muovinlikka o'tib, mashina minadigan bo'lganida Xoji bobo unga kimni tavsiya qilgan edi?", a: ["O'g'lini", "Jiyanini", "Jo'rani", "Qo'shnisini"], correct: "Jiyanini"},
+    {q: "Xoji bobo 1 odamni 1000 ta kaliti bor deb nimani nazarda tutgan?", a: ["Eshikni", "Qalbni", "Kassani", "Mashinani"], correct: "Qalbni"},
+    {q: "Kimni ko'rib 'bu kesakdan o't chiqqan' degan Jo'ra?", a: ["Iskandarni", "Oyravshanni", "Xoji boboni", "Gena"], correct: "Oyravshanni"},
+    {q: "Jo'ra Oyravshanni ko'rgach nima degan edi?", a: ["Besh ketgan", "Chiroyli", "Yaxshi", "Oddiy"], correct: "Besh ketgan"},
+    {q: "Necha yildirki katta do'xtirlikni yig'ishtirib boyvuchcha sifat bo'lib uyda o'tirgan kim?", a: ["Dilrabo", "Adolat", "Xalima", "Oyravshan"], correct: "Dilrabo"},
+    {q: "Iskandarning nechta farzandi bor edi?", a: ["1 ta", "2 ta", "3 ta", "4 ta"], correct: "2 ta"},
+    {q: "Prokuraturada Iskandar kim bo'lib ishlar edi?", a: ["Prokuror", "Muovin", "Kotirovka", "Yordamchi"], correct: "Muovin"},
+    {q: "Bir vaqtlar harbiylar qal'asi sanalgan shaharning qoq markazidagi joy qayer?", a: ["Xoji boboning chorbog'i", "Maktab", "Park", "Bozor"], correct: "Xoji boboning chorbog'i"},
+    {q: "Obqomdan qolgan uylar nima deb atalardi?", a: ["Hukumat uylari", "Eski uylar", "Obqom uylari", "Yangi uylar"], correct: "Obqom uylari"},
+    {q: "Xoji boboning hovlisi qanday usulda kengaytirilgan?", a: ["Zamonaviy", "Sho'rocha", "Oddiy", "Qadimiy"], correct: "Sho'rocha"},
+    {q: "Xoji bobo eski bazani sotib olib nima qilgan?", a: ["Bog'", "Otxona", "Zavod", "Do'kon"], correct: "Otxona"},
+    {q: "Xoji bobomizning murutini bolta kesolmas iborasi nimani anglatadi?", a: ["Qo'rqinchli", "Qonuniy", "Mansabdor", "Boy"], correct: "Qonuniy"},
+    {q: "Xoji bobo avvaldan nimaga ishqiboz?", a: ["Moshinaga", "Otga", "Ovga", "Baliqga"], correct: "Otga"},
+    {q: "Xoji boboning nechta oti bor?", a: ["2 ta", "4 ta", "5 ta", "6 ta"], correct: "4 ta"},
+    {q: "Turkman ortidan kelgan ot qanday?", a: ["Oddiy", "Zotdor qorabayir", "Poyga", "Kichik"], correct: "Zotdor qorabayir"},
+    {q: "Xoji bobo qachondan otga minmay qo'ygan?", a: ["Qariganida", "Mansabdor bo'lgach", "Sotib yuborgach", "Kasal bo'lgach"], correct: "Mansabdor bo'lgach"},
+    {q: "Otxona burchagidagi qafasda nima bor?", a: ["Arslon", "Tog' ohusi", "Burgut", "Tovuq"], correct: "Tog' ohusi"},
+    {q: "Tog' ohusi qafasga qanday kelgan?", a: ["Sotib olingan", "Hadiya", "Tutib kelingan", "Hadiya"], correct: "Hadiya"},
+    {q: "Tog'lik nozaninning vazifasi nima?", a: ["Sotish", "Go'sht uchun", "Mehmonlarga ko'rinib turish", "O'yin"], correct: "Mehmonlarga ko'rinib turish"},
+    {q: "Bu jonivorlarga kim qaraydi?", a: ["Xoji bobo", "Gena", "Jo'ra", "Iskandar"], correct: "Gena"},
+    {q: "Genaning asl ismi nima?", a: ["G'aniqul", "Georgiy", "Gennadiy", "G'ayrat"], correct: "G'aniqul"},
+    {q: "Gena tog'a necha yoshda?", a: ["50+", "60+", "70+", "80+"], correct: "60+"},
+    {q: "Xoji boboga Gena kim?", a: ["Aka", "Uka", "Amakivachcha", "Do'st"], correct: "Amakivachcha"},
+    {q: "Xoji onaga kim?", a: ["Aka", "Ammavachcha", "Uka", "Jiyan"], correct: "Ammavachcha"},
+    {q: "Xoji onaning ismi kim?", a: ["Adolat", "Xalima", "Dilrabo", "Marusa"], correct: "Adolat"},
+    {q: "Adolat poshsha qaysi urug'dan?", a: ["Eshon xo'ja", "Boy", "Qarindosh", "Hukumat"], correct: "Eshon xo'ja"},
+    {q: "G'aniqul Xoji onani kim deb chaqiradi?", a: ["Xo' Adal", "Xola", "Adolat", "Poshsha"], correct: "Xo' Adal"},
+    {q: "G'aniqul Xoji boboni kim deb chaqiradi?", a: ["Xo' Samar", "Xoji", "Bobo", "G'ani"], correct: "Xo' Samar"},
+    {q: "Jo'raning familiyasi nima?", a: ["Georgiy", "Doniyorov", "Aliyev", "Valiyev"], correct: "Georgiy"},
+    {q: "Iskandar Jo'rani kim deb ataydi?", a: ["Georgiy", "Jo'raboy", "Georgiy Gennadeyivich", "Jo'ra"], correct: "Georgiy Gennadeyivich"},
+    {q: "G'aniqul qancha maoshga ishlaydi?", a: ["Tekinga", "100 so'm", "500 so'm", "1000 so'm"], correct: "Tekinga"},
+    {q: "G'aniqulning o'g'li kim?", a: ["Jo'raboy", "Iskandar", "G'ayrat", "Shokir"], correct: "Jo'raboy"},
+    {q: "G'aniqul qayerda uylangan?", a: ["Shahar", "Qayinzor", "Qishloq", "Toshkent"], correct: "Qayinzor"},
+    {q: "G'aniqulning xotini kim?", a: ["Marusa", "Xalima", "Adolat", "Dilrabo"], correct: "Marusa"},
+    {q: "Marusa nimadan vafot etgan?", a: ["Ichkilik", "Qarilik", "Kasallik", "Baxtsizlik"], correct: "Ichkilik"},
+    {q: "Sigindilar qayerda yashaydi?", a: ["Uyda", "Qaptiyorka", "Garaj", "Ko'chada"], correct: "Qaptiyorka"},
+    {q: "Qorachipor telnyashkali odam kim?", a: ["Gena amaki", "Xoji bobo", "Jo'ra", "Iskandar"], correct: "Gena amaki"},
+    {q: "Ko'z qisadigan kim?", a: ["Gena amaki", "Iskandar", "Xoji bobo", "Jo'ra"], correct: "Gena amaki"},
+    {q: "Hujrada chor devorga nima singgan?", a: ["Tamaki hidi", "Ovqat", "Tozalik", "Namlik"], correct: "Tamaki hidi"},
+    {q: "Ko'zlari ko'kish, ovozi bo'g'iq kim?", a: ["Jo'ra", "Iskandar", "Xoji bobo", "G'ayrat"], correct: "Jo'ra"},
+    {q: "Gung-soqov kim?", a: ["Jo'ra", "Gena", "Xoji bobo", "Iskandar"], correct: "Jo'ra"}
+];
+
+let currentQ = 0, score = 0, answered = 0;
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function loadQ() {
+    const qData = quizData[currentQ];
+    document.getElementById('question').innerText = `${currentQ + 1}/${quizData.length}. ${qData.q}`;
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = '';
+    
+    let shuffledOptions = shuffle([...qData.a]);
+    
+    shuffledOptions.forEach((opt) => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt;
+        btn.onclick = () => check(opt, btn, qData.correct);
+        optDiv.appendChild(btn);
+    });
+}
+
+function check(selected, element, correct) {
+    const options = element.parentElement.querySelectorAll('.option');
+    options.forEach(opt => opt.style.pointerEvents = 'none');
+    answered++;
+    
+    if (selected === correct) {
+        element.classList.add('correct');
+        score++;
+    } else {
+        element.classList.add('wrong');
+        options.forEach(opt => {
+            if (opt.innerText === correct) opt.classList.add('correct');
+        });
+    }
+    setTimeout(() => {
+        currentQ++;
+        if (currentQ < quizData.length) loadQ();
+        else finishQuiz();
+    }, 1000);
+}
+
+function finishQuiz() {
+    let wrong = answered - score;
+    document.getElementById('quiz').innerHTML = `
+        <h2>Natijalar</h2>
+        <div style="line-height: 2.2; font-size: 19px;">
+            Jami savollar: <b>${quizData.length} ta</b><br>
+            To'g'ri javoblar: <span style="color:#00ff99;">${score} ta</span><br>
+            Xato javoblar: <span style="color:#ff4d4d;">${wrong} ta</span>
+        </div>
+        <button class="btn-finish" onclick="location.reload()">Qaytadan boshlash</button>
+    `;
+}
+</script>
+</body>
+</html>

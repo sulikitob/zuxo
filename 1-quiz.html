@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1-Bob: Buzuq til havosi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background: linear-gradient(135deg, #050505, #121212, #1d1d1d); 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            min-height: 100vh; 
+        }
+
+        /* KIRISH EKRANI */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #050505; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000;
+            transition: opacity 0.8s ease;
+        }
+        
+        .content-box { text-align: center; margin-bottom: 50px; }
+        
+        /* 3-2-1 TAYMERI (ENG PASTDA) */
+        #countdown { 
+            position: absolute; bottom: 50px;
+            font-size: 80px; color: #00ff99; font-weight: bold;
+            text-shadow: 0 0 15px rgba(0,255,153,0.4);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.5; }
+        }
+
+        /* TEST QISMI */
+        .quiz-box { 
+            width: 100%; max-width: 600px; background: #1b1b1b; padding: 30px; 
+            border-radius: 25px; box-shadow: 0 0 35px rgba(0, 255, 150, 0.2); 
+            text-align: center; margin-top: 50px;
+        }
+        h2 { color: #00ff99; margin-bottom: 20px; font-size: 22px; }
+        .option { 
+            display: block; width: 100%; padding: 15px; margin: 10px 0; 
+            background: #2a2a2a; border: 2px solid #333; border-radius: 15px; 
+            cursor: pointer; transition: 0.3s; text-align: left;
+        }
+        .option:hover { border-color: #00ff99; }
+        .correct { 
+            background: #00ff99 !important; color: black; font-weight: bold; 
+            animation: bubbleEffect 0.5s ease-out;
+        }
+        @keyframes bubbleEffect {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 255, 153, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0); }
+        }
+        .wrong { background: #ff4d4d !important; color: white; }
+        .btn-finish { 
+            width: 100%; padding: 15px; background: transparent; border: 2px solid #00ff99; 
+            color: #00ff99; border-radius: 15px; cursor: pointer; margin-top: 20px; 
+            font-weight: bold; transition: 0.3s; 
+        }
+        .btn-finish:hover { background: #00ff99; color: black; }
+    </style>
+</head>
+<body onload="startTimer()">
+
+<div id="intro-screen">
+    <div class="content-box">
+        <h1 style="color:#00ff99; font-size: 32px;">📚 1-Bob. Buzuq til havosi</h1>
+        <p style="margin: 20px; font-size: 18px; max-width: 600px; line-height: 1.6; color: #ccc;">
+            "Robbing seni tark etmadi va g‘azab ham qilmadi.<br> Albatta oxirat sen uchun bu dunyodan yaxshidir."
+            <br><br><small style="color:#00ff99;">🌙 Zuho surasi 93:3-4</small>
+        </p>
+    </div>
+    <div id="countdown">3</div>
+</div>
+
+<div class="quiz-box" id="quiz">
+    <h2 id="question">Yuklanmoqda...</h2>
+    <div id="options"></div>
+    <button class="btn-finish" onclick="finishQuiz()">Testni yakunlash</button>
+</div>
+
+<script>
+function startTimer() {
+    let count = 3;
+    let disp = document.getElementById("countdown");
+    let timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+            disp.innerText = count;
+        } else if (count === 0) {
+            disp.innerText = "Boshladik!";
+        } else {
+            clearInterval(timer);
+            document.getElementById("intro-screen").style.opacity = "0";
+            setTimeout(() => {
+                document.getElementById("intro-screen").style.display = "none";
+                loadQ();
+            }, 800);
+        }
+    }, 1000);
+}
+
+// ... (Quiz Data va funksiyalar o'zgarishsiz qoladi)
+const quizData = [
+    { q: "Ahmad A’zamning eng yaxshi ko‘rgan lug‘ati?", a: ["O‘zbekcha-ruscha", "Mahmud Qoshg‘ariy", "Frazeologik", "Chappa lug‘at"], correct: 0 },
+    { q: "Ahmad A’zam nechanchi yildagi ruscha-o‘zbekcha lug‘atni yaxshi ko‘rar edi?", a: ["1979", "1959", "1965", "1983"], correct: 0 },
+    { q: "... ham mafkura quroliga aylandi:", a: ["Lug‘at", "Maqol", "Til", "So‘z"], correct: 2 },
+    { q: "\"плоскогубцы\" nima?", a: ["Tishlog‘ich", "Kampir og‘iz", "Ombir", "Yassi ombir"], correct: 3 },
+    { q: "Mixni tishlab sug‘uradiganni Samarqandda nima deyiladi?", a: ["Yassi ombir", "Omoch", "Ombir", "Kampir og‘iz"], correct: 2 },
+    { q: "Mixni tishlab sug‘urgich Qashqadaryoda nima deyiladi?", a: ["Kampir og‘iz", "Yassi ombir", "Ombir", "Tishlog‘ich"], correct: 0 },
+    { q: "Domba nima?", a: ["To‘g‘on", "Ko‘prik", "Suv ko‘prik", "Charxpalak"], correct: 1 },
+    { q: "To‘g‘on o‘zbek tilida:", a: ["Damn", "Domba", "Danba", "Dam"], correct: 1 },
+    { q: "G‘allaoroldagi temir yo‘l bekati...:", a: ["Bogarniy", "Raziz", "Ayrima", "Boundarly"], correct: 0 },
+    { q: "Bogarniy asli o‘zimizniki ya’ni:", a: ["Bolgarniy", "Bogatiy", "Baxorgi", "Bokuni eski norni"], correct: 2 },
+    { q: "Po‘yezdlar bir-biriga yo‘l beradigan bekat:", a: ["Bekat", "Adress", "Ayirg‘ich ayirma", "Manzil"], correct: 2 },
+    { q: "Po‘yezdlar bir-biriga yo‘l beradigan bekat ruschada nima deyiladi?", a: ["Разъезд", "Остановка", "Raziz", "Разиз"], correct: 0 },
+    { q: "Shaharchamiz yonidan katta o‘zbek yo‘li o‘tdi qishloqlardan chiqqan yo‘l bilan kesishgan joy...:", a: ["Ayrima", "Qo‘shma yo‘l", "Разъезд", "Переkрёска"], correct: 3 },
+    { q: "Переkрёskani o‘rniga bozor qurildi va nima deb ataldi:", a: ["Ayrima", "Raziz", "Shaymon", "Jonboy"], correct: 0 },
+    { q: "Jonli so‘zlashuv tilini yana qanday atasa bo‘ladi:", a: ["Hammasi to‘g‘ri", "Qora", "Avom", "Yalpoq"], correct: 0 },
+    { q: "Avom so‘zining ma’nosi nima:", a: ["Omma ko‘plik", "Mahalliy", "Ajnably", "Orrijo‘n"], correct: 0 },
+    { q: "Chiptasiz yurgan odam:", a: ["Gepard", "Quyon", "O‘g‘ri", "Boshqa"], correct: 1 },
+    { q: "Transport o‘rniga qanday so‘z ishlatsa bo‘ladi:", a: ["Qulov", "Ulov", "Avtomal", "Arava"], correct: 1 },
+    { q: "Toponimka bilimdoni:", a: ["A.Navoiy", "Musulmon namoz", "Suyun Qorayev", "Ahmad A’zam"], correct: 2 },
+    { q: "Dala malikasi:", a: ["Archa", "Eman", "Terak", "Makka jo‘xori"], correct: 3 },
+    { q: "Volga daryosi boyida yashovchi og‘ir ahvolli xalq nima deb ataladi:", a: ["Soldav", "Burlok", "Durlok", "Stachki"], correct: 1 },
+    { q: "Volga daryosi boyida yashovchi og‘ir ahvolli xalq o‘zimizda qanday ataladi:", a: ["Soldav", "Durlak", "Burlaklar", "Stachi"], correct: 2 },
+    { q: "Tarix darsliklarida o‘tmishdagi ishchilar boshlig‘i:", a: ["Durlak", "Stachki", "Burlak", "Boshqa"], correct: 1 },
+    { q: "Mem tug‘ilgan tumanda 2 ta bozornin biri nima deb ataladi:", a: ["Lenin", "Gazira", "Ukraina", "Hammasi"], correct: 2 },
+    { q: "Botinka o‘zbekchada nima:", a: ["Etik", "Etikcha", "Boshmoq", "Kavush"], correct: 2 },
+    { q: "Tufli o‘zbekchada qanday ataladi:", a: ["Kavush", "Boshmoq", "Etik", "Etikcha"], correct: 0 },
+    { q: "Сопошка:", a: ["Etikcha", "Boshmoq", "Ulton", "Etik"], correct: 0 },
+    { q: "Носки?:", a: ["Paypoq", "Jolop", "Qolqop", "Hammasi to‘g‘ri"], correct: 0 },
+    { q: "Носки ni yana qanday atasa bo‘ladi:", a: ["Pyatka", "Napyatka", "Jo‘lop", "Jilop"], correct: 2 },
+    { q: "Осьмушка nima degani?:", a: ["8 dan 1", "Hammasi to‘g‘ri", "Yarim", "Nimchirok"], correct: 0 },
+    { q: "Кипяток o‘rniga qanday so‘z o‘zimizda bor edi?:", a: ["Qaynatma", "Hammasi to‘g‘ri", "Objosh", "Damlam"], correct: 1 },
+    { q: "Bizning shaharcha qanday atalgan?:", a: ["Jonboy", "Yonboy", "Jomboy", "Boshqa"], correct: 2 },
+    { q: "Yuriy Gagarin ... o‘tirib qoldi:", a: ["Mirzacho‘lga", "Jomboyga", "Ko‘chaga", "Maktabga"], correct: 0 },
+    { q: "Rus turkologi kim:", a: ["Badr ogli", "S.L.Dubrovskiy", "D.I.Pushkin", "N.A.Boskonov"], correct: 3 },
+    { q: "N.A.Boskonov qancha familiyani o‘zgarganini ko‘rsatib o‘tgan:", a: ["100", "300", "500", "200"], correct: 3 }
+];
+
+let currentQ = 0, score = 0, answered = 0;
+function loadQ() {
+    const qData = quizData[currentQ];
+    document.getElementById('question').innerText = `${currentQ + 1}/${quizData.length}. ${qData.q}`;
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = '';
+    qData.a.forEach((opt, i) => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt;
+        btn.onclick = () => check(i, btn);
+        optDiv.appendChild(btn);
+    });
+}
+function check(idx, element) {
+    const options = element.parentElement.querySelectorAll('.option');
+    options.forEach(opt => opt.style.pointerEvents = 'none');
+    answered++;
+    if (idx === quizData[currentQ].correct) {
+        element.classList.add('correct');
+        score++;
+    } else {
+        element.classList.add('wrong');
+        options[quizData[currentQ].correct].classList.add('correct');
+    }
+    setTimeout(() => {
+        currentQ++;
+        if (currentQ < quizData.length) loadQ();
+        else finishQuiz();
+    }, 1000);
+}
+function finishQuiz() {
+    let wrong = answered - score;
+    document.getElementById('quiz').innerHTML = `
+        <h2>Natijalar</h2>
+        <div style="line-height: 2.2; font-size: 19px;">
+            Jami savollar: <b>${quizData.length} ta</b><br>
+            To'g'ri javoblar: <span style="color:#00ff99;">${score} ta</span><br>
+            Xato javoblar: <span style="color:#ff4d4d;">${wrong} ta</span>
+        </div>
+        <button class="btn-finish" onclick="location.reload()">Qaytadan boshlash</button>
+    `;
+}
+</script>
+</body>
+</html>

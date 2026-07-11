@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7-Bob. G'ayrat-2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background: linear-gradient(135deg, #050505, #121212, #1d1d1d); 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            min-height: 100vh; 
+        }
+
+        /* ===== Raqam tanlash ekrani ===== */
+        #select-screen {
+            width: 100%; max-width: 700px;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 25px; padding: 20px 0;
+        }
+        #select-screen h1 {
+            font-size: 26px; color: #00ff99; text-align: center;
+            text-shadow: 0 0 15px rgba(0,255,153,0.4);
+        }
+        #select-screen p { color: #999; font-size: 14px; text-align: center; }
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+            gap: 10px;
+            width: 100%;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 10px;
+            background: #111;
+            border-radius: 20px;
+            box-shadow: 0 0 25px rgba(0,255,150,0.15);
+        }
+        .number-grid::-webkit-scrollbar { width: 8px; }
+        .number-grid::-webkit-scrollbar-thumb { background: #00ff99; border-radius: 10px; }
+        .num-btn {
+            background: #1b1b1b;
+            border: 2px solid #00ff99;
+            color: #00ff99;
+            border-radius: 12px;
+            padding: 12px 0;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+            text-shadow: 0 0 8px rgba(0,255,153,0.6);
+        }
+        .num-btn:hover {
+            background: #00ff99;
+            color: #050505;
+            box-shadow: 0 0 20px rgba(0,255,150,0.8);
+            transform: scale(1.08);
+        }
+        .num-btn.picked {
+            background: #ff9900;
+            border-color: #ff9900;
+            color: #050505;
+            box-shadow: 0 0 20px rgba(255,153,0,0.8);
+        }
+        #range-info {
+            color: #ff9900; font-size: 15px; font-weight: bold; min-height: 22px;
+        }
+
+        /* ===== Funksiya tanlash ekrani ===== */
+        #mode-screen {
+            display: none;
+            width: 100%; max-width: 700px;
+            flex-direction: column; align-items: center;
+            gap: 25px; padding: 20px 0;
+        }
+        #mode-screen h1 {
+            font-size: 24px; color: #00ff99; text-align: center;
+            text-shadow: 0 0 15px rgba(0,255,153,0.4);
+        }
+        .mode-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .mode-card {
+            background: #1b1b1b; border-radius: 20px; padding: 30px 15px;
+            text-align: center; transition: 0.4s; color: white; position: relative;
+            overflow: hidden; box-shadow: 0 0 20px rgba(0,255,150,0.1); cursor: pointer;
+            border: none; font-size: 16px; font-weight: bold;
+        }
+        .mode-card::before {
+            content: ""; position: absolute; width: 200%; height: 200%;
+            background: linear-gradient(45deg,transparent,#00ff99,transparent);
+            top: -150%; left: -150%; transform: rotate(25deg); transition: 0.7s;
+        }
+        .mode-card:hover::before { top: 100%; left: 100%; }
+        .mode-card:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 0 35px rgba(0,255,150,0.5); }
+        @media(max-width:600px){ .mode-grid{ grid-template-columns: 1fr; } }
+
+        .btn-show { 
+            width: 100%; padding: 15px; background: transparent; border: 2px solid #00ff99; 
+            color: #00ff99; border-radius: 15px; cursor: pointer; margin-top: 10px; 
+            font-weight: bold; transition: 0.3s; 
+        }
+        .btn-show:hover { background: #00ff99; color: black; }
+
+        .closed-input {
+            width: 100%; padding: 15px; margin-top: 10px; border: 2px solid #333;
+            border-radius: 12px; font-size: 17px; outline: none; background: #2a2a2a;
+            color: white;
+        }
+        .closed-input:focus { border-color: #00ff99; }
+        .btn-check {
+            width: 100%; padding: 15px; margin-top: 15px; border: 2px solid #00ff99; border-radius: 15px;
+            background: transparent; color: #00ff99; font-weight: bold; cursor: pointer; font-size: 17px;
+            transition: 0.3s;
+        }
+        .btn-check:hover { background: #00ff99; color: black; }
+        #closed-result { margin-top: 15px; font-size: 18px; min-height: 30px; text-align: center; }
+
+        /* ===== Intro (countdown) ekran ===== */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #050505; display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000;
+            transition: opacity 0.8s ease;
+        }
+        .content-box { text-align: center; margin-bottom: 50px; }
+        #countdown { 
+            position: absolute; bottom: 50px;
+            font-size: 80px; color: #00ff99; font-weight: bold;
+            text-shadow: 0 0 15px rgba(0,255,153,0.4);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.5; }
+        }
+
+        /* ===== Quiz ekrani ===== */
+        .quiz-box { 
+            display: none;
+            width: 100%; max-width: 600px; background: #1b1b1b; padding: 30px; 
+            border-radius: 25px; box-shadow: 0 0 35px rgba(0, 255, 150, 0.2); 
+            text-align: center; margin-top: 50px;
+        }
+        h2 { color: #00ff99; margin-bottom: 20px; font-size: 22px; text-align: left; line-height: 1.5; }
+        .option { 
+            display: block; width: 100%; padding: 15px; margin: 10px 0; 
+            background: #2a2a2a; border: 2px solid #333; border-radius: 15px; 
+            cursor: pointer; transition: 0.3s; text-align: left; color: white;
+        }
+        .option:hover { border-color: #00ff99; }
+        .correct { 
+            background: #00ff99 !important; color: black !important; font-weight: bold; 
+            animation: bubbleEffect 0.5s ease-out;
+        }
+        @keyframes bubbleEffect {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 255, 153, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0); }
+        }
+        .wrong { background: #ff4d4d !important; color: white !important; }
+        .btn-finish { 
+            width: 100%; padding: 15px; background: transparent; border: 2px solid #00ff99; 
+            color: #00ff99; border-radius: 15px; cursor: pointer; margin-top: 20px; 
+            font-weight: bold; transition: 0.3s; 
+        }
+        .btn-finish:hover { background: #00ff99; color: black; }
+    </style>
+</head>
+<body>
+
+<div id="select-screen">
+    <h1>📚 7-Bob. G'ayrat-2</h1>
+    <p>Savollar sonini belgilang</p>
+    <div id="range-info">Boshlang'ich raqamni tanlang</div>
+    <div class="number-grid" id="numberGrid"></div>
+</div>
+
+<div id="mode-screen">
+    <h1>Qaysi funksiyani xohlaysiz?</h1>
+    <div class="mode-grid">
+        <div class="mode-card" onclick="chooseMode('quiz')">Quiz testlar</div>
+        <div class="mode-card" onclick="chooseMode('quiz-aralash')">Quiz aralash</div>
+        <div class="mode-card" onclick="chooseMode('yopiq')">Yopiq savol-javob</div>
+        <div class="mode-card" onclick="chooseMode('yopiq-aralash')">Yopiq savol-javob aralash</div>
+    </div>
+</div>
+
+<div id="intro-screen">
+    <div class="content-box">
+        <h1 style="color:#00ff99; font-size: 32px;">📚 7-Bob. G'ayrat-2</h1>
+        <p style="margin: 20px; font-size: 18px; max-width: 600px; line-height: 1.6; color: #ccc;">
+            Bilim - kuch, tayyorlaning va omad tilaymiz!
+        </p>
+    </div>
+    <div id="countdown">3</div>
+</div>
+
+<div class="quiz-box" id="quiz">
+    <h2 id="question">Yuklanmoqda...</h2>
+    <div id="options"></div>
+    <button class="btn-finish" onclick="finishQuiz()">Testni yakunlash</button>
+</div>
+
+<script>
+const quizData = [
+    {q: `...ning yaxshi odati-kalavani chuvalatib o'tirmaydi, masalani ko'ndalang qo'yib, aytar gapini shartta-shartta aytadi-da, а далшефилософия deya yakun yasaydi qo'yadi kim`, options: [`Jumaniyoz`, `G'ayrat`, `Burxon Aliyorov`, `Vorisxon`], correct: `Jumaniyoz`},
+    {q: `Gapga no'noqligi-yu o'tirishturishida palapartishtoroq ko'rinishi aldamchi xolat xar qanday masalada muammoning jon joyini bir qarashda bexato aniqlaydi. Tegishli chora tadb`, options: [`Jumaniyoz`, `G'ayrat`, `Abdukarim`, `Shoyimboyev`], correct: `Jumaniyoz`},
+    {q: `Yaqinsan beri hay'at yig'ilishlarini birinchi o'rinbosar sifatida boshqarayotir birinchi o'rinbosar kim`, options: [`Jumaniyoz Matyoqubov`, `Burxon Aliyorov`, `Abdukarim`, `Vorisxon`], correct: `Jumaniyoz Matyoqubov`},
+    {q: `Ustidan jinoiy ish ochilib, allaqayerda tergov berib yurganmish kim`, options: [`Katta xo'jayin`, `G'ayrat`, `Jumaniyoz`, `Faxriddin`], correct: `Katta xo'jayin`},
+    {q: `Majlis Payti G'ayratga nechi marta telefon bo'lgan edi`, options: [`7-8`, `3-4`, `10-12`, `5-6`], correct: `7-8`},
+    {q: `2 ta telefon kimdan kelgan edi`, options: [`Uydan`, `Do'stidan`, `Hamkasbidan`, `O'qituvchisidan`], correct: `Uydan`},
+    {q: `yana 2 ta telefon kimdan kelgan edi`, options: [`No'malum raqam`, `Akasidan`, `Ukadan`, `Yordamchidan`], correct: `No'malum raqam`},
+    {q: `6 tasi kimdan kelgan edi telefon`, options: [`Yordamchisidan`, `Muovinidan`, `Hokimdan`, `Otasidan`], correct: `Yordamchisidan`},
+    {q: `G'ayratning yordamchisining ismi kim`, options: [`Faxriddin`, `Abdukarim`, `Jumaniyoz`, `Burxon`], correct: `Faxriddin`},
+    {q: `G'ayratning Muovini kim`, options: [`Abdukarim`, `Faxriddin`, `Jumaniyoz`, `Burxon`], correct: `Abdukarim`},
+    {q: `Muovin Abdukarimni kim olib ketdi`, options: [`Akalar`, `Politsiya`, `Do'stlari`, `Hokimiyat`], correct: `Akalar`},
+    {q: `Akalar yana kimni tiqib qo'ygan`, options: [`Boshbuxniyam`, `Kotibani`, `Yordamchini`, `Muovinni`], correct: `Boshbuxniyam`},
+    {q: `Xushmuomala xatto uncha muncha hazilkash kim`, options: [`Vorisxon`, `Burxon Aliyorov`, `Abdukarim`, `Jumaniyoz`], correct: `Vorisxon`},
+    {q: `Akalar G'ayratning kabinetini nima qilgan`, options: [`Tambalab surg'uchlab`, `Bo'shatib qo'ygan`, `Ochib qo'ygan`, `Ta'mirlagan`], correct: `Tambalab surg'uchlab`},
+    {q: `Faxriddin unga nima demoqchi G'ayratga`, options: [`Kemaganingiz ma'qul siz bosh nishonda`, `Ishga boring`, `Qoching`, `Barchasi yaxshi`], correct: `Kemaganingiz ma'qul siz bosh nishonda`},
+    {q: `G'ayratni qidirib uyiga kirib hojatxonagagacha nechi marta kelib ketishdi`, options: [`2`, `1`, `3`, `4`], correct: `2`},
+    {q: `Kadrlar bo'yicha G'ayratning muovini kim`, options: [`Burxon Aliyorov`, `Abdukarim`, `Jumaniyoz`, `Faxriddin`], correct: `Burxon Aliyorov`},
+    {q: `Burxon Aliyorov nechi yildan beri chiroqchilik nonini yeb kelar edi`, options: [`20`, `10`, `5`, `15`], correct: `20`},
+    {q: `Kimni nozik idora bilan aloqasi bor deyishadi`, options: [`Burxon Aliyorovni`, `Abdukarimni`, `Jumaniyozni`, `Vorisxonni`], correct: `Burxon Aliyorovni`},
+    {q: `G'ayrat viloyat boshqarmasiga boshliq bo'lib ishlashiga nechi yildan oshdi hu narsalarni sezmagan`, options: [`4`, `2`, `6`, `8`], correct: `4`},
+    {q: ` Juda ba'mani og'ir vazmin beozor odam. Nimani so'ramang jo'yali maslahat beradi Kim`, options: [`Burxon Aliyorov`, `Abdukarim`, `Jumaniyoz`, `Vorisxon`], correct: `Burxon Aliyorov`},
+    {q: `Talay vaqtdan beri surbetlik bilan mo'lgina qarzini to'lamay kelayotgan shaxardagi 2 restoranu "Bayram" to'yxonasini elektrdan uzib tashlash uchun buyruq hozirlayotganida oldiga kirib uka ozgina shoshilmay tursak bo'larmidi bu joylar anovi zo'ra`, options: [`Vorisxonga`, `Jumaniyozga`, `G'ayratga`, `Burxon Aliyorovga`], correct: `Vorisxonga`},
+    {q: `Talay vaqtdan beri surbetlik bilan mo'lgina qarzini to'lamay kelayotgan shaxardagi 2 restoranu "Bayram" to'yxonasini elektrdan uzib tashlash uchun buyruq hozirlayotganida oldiga kirib uka ozgina shoshilmay tursak bo'larmidi bu joylar anovi zo'ra`, options: [`Burxon Aliyorov`, `Abdukarim`, `Jumaniyoz`, `Vorisxon`], correct: `Burxon Aliyorov`},
+    {q: ` Abdukarimning familiyasi kim`, options: [`Mavlonov`, `Aliyorov`, `Matyoqubov`, `Voxidov`], correct: `Mavlonov`},
+    {q: `Tavba, bironnimadan qattiq siqilgan yoki xozirgidek yolg'iz, parishonxon damlarida nechundir kimni eslab qolasi G'ayrat`, options: [`Oyravshanni`, `Jumaniyozni`, `Vorisxonni`, `Burxonni`], correct: `Oyravshanni`},
+    {q: `G'ayrat unashtirilganlaridan keyin Oyravshanni qayerga tomoshaga olib borgan edi`, options: [`Toshkentga`, `Samarqandga`, `Buxoroga`, `Xivaga`], correct: `Toshkentga`},
+    {q: `G'ayrat Oyravshanni qayerdagi ijaraxonasiga olib borgan edi`, options: [`Beshog'ochdagi`, `Yunusobod`, `Chorsu`, `Eski shahar`], correct: `Beshog'ochdagi`},
+    {q: `Ijaraxonada Oyravshan va G'ayrat nechi kun birga qolishadi`, options: [`1 kecha`, `2 kun`, `3 kun`, `1 hafta`], correct: `1 kecha`},
+    {q: `Uy egalaridan hayo etibmi, allamaxalgacha nima qib o'tirdilar`, options: [`Pichir pichir qib o'tirdilar bo'lak bo'lak yotdilar taomilga amal qilish uchun o'taketgan to'g'ri bola edi da`, `She'r yodladilar`, `Ovqatlandilar`, `Gaplashib o'tirdilar`], correct: `Pichir pichir qib o'tirdilar bo'lak bo'lak yotdilar taomilga amal qilish uchun o'taketgan to'g'ri bola edi da`},
+    {q: `Uy egasi xonimning ismi kim edi kelinoyining`, options: [`Aslida`, `Zamira`, `Emine`, `Munira`], correct: `Aslida`},
+    {q: ` 2 oylar bo'ldi saratonning oxirida bir kuni allakim qo'ng'iroq qilib tuzuk salom aliksiz... Aka sizni ko'rmoqchilar deb qoldi kim ko'rmoqchi edi`, options: [`Vorisxon`, `Jumaniyoz`, `Burxon`, `Abdukarim`], correct: `Vorisxon`},
+    {q: `G'ayratning familiyasi nima`, options: [`Voxidov`, `Aliyorov`, `Mavlonov`, `Matyoqubov`], correct: `Voxidov`},
+    {q: `Baland Panjara bilan o'ralgan 3 qavatli qora oyanavand bino. Qurilganiga ko'p bo'lgani yo'q. Eski shahardagi eski istirohat bog'ining etakrog'ida bie vaq`, options: [`Vorisxonning`, `Jumaniyozning`, `Burxonning`, `G'ayratning`], correct: `Vorisxonning`},
+    {q: `Vorisxonning xonadagi diqqatni tortadigan yagona ashyo nima`, options: [`Burchakdagi yuksalgan baxaybat seyf`, `Kitoblar`, `Shkaflar`, `Rasmlar`], correct: `Burchakdagi yuksalgan baxaybat seyf`},
+    {q: `Keyingi 4-5 yil ichi vohani larzaga keltirib, zilzila yasab yurgan afsonaviy vallamat kim edi`, options: [`Vorisxon`, `G'ayrat`, `Jumaniyoz`, `Burxon`], correct: `Vorisxon`},
+    {q: `Vorisxon kim edi`, options: [`Podpolkovnik`, `Mayor`, `Polkovnik`, `Leytenant`], correct: `Podpolkovnik`},
+    {q: `Aytishlaricha hozir Toshkentga yuksalib ketgan akaxoni bir vaqtlar shu yerda kim bo'lib ishlagan`, options: [`Boshqarma xo'jayini`, `Hokim`, `Muovin`, `Podpolkovnik`], correct: `Boshqarma xo'jayini`},
+    {q: `Vorisxon akaxoni Boshqarma xo'jayini bo'lgan payti kim sifatida qo'shni dablatlardan keladigan ba'zi qorakarvonlarga ikkovlon birgalikda sarbonlik qila`, options: [`Yosh mayor uning o'ng qo'li bo'lgan`, `Muovin`, `Kotib`, `Yordamchi`], correct: `Yosh mayor uning o'ng qo'li bo'lgan`},
+    {q: `Qaysi obyektlar Vorisxonga tegishli bo'lib G'ayrat ulanri chiroqdan uzgan`, options: [`Orzu Karvon Samad ota Birlashgab Uchrashuv`, `Maktablar`, `Bog'chalar`, `Sanoat obyektlari`], correct: `Orzu Karvon Samad ota Birlashgab Uchrashuv`},
+    {q: `G'ayratning Quratori kim edi`, options: [`Shoyimboyev Diyor`, `Burxon Aliyorov`, `Abdukarim`, `Jumaniyoz`], correct: `Shoyimboyev Diyor`},
+    {q: ` Shoyimboyev Diyor kim bo'lib ishlaydi`, options: [`Xokim muovini`, `Hokim`, `Boshliq`, `Muovin`], correct: `Xokim muovini`},
+    {q: `Diyor Shoyimboyev qaysi soha bo'yicha hokim muovini edi`, options: [`Qurilish va Sanoat`, `Ta'lim`, `Sog'liqni saqlash`, `Qishloq xo'jaligi`], correct: `Qurilish va Sanoat`},
+    {q: `G'ayratning vazifasi Shoyimbiyevning oldiga kiradi yu salom alikdan so'ng cho'ntagidan... Gazetasiga o'rog'lik qalin taxlamni olib turli papka sapka qal`, options: [`Xalq so'zi`, `Yangi O'zbekiston`, `Pravda Vostoka`, `Mahalla`], correct: `Xalq so'zi`},
+    {q: `Vazifa jarayonida G'ayratning nimasi Shoyimboyev tarafga qaratilgan bo'lishi kerak`, options: [`Serbezak soati`, `Ko'zlari`, `Qo'llari`, `Papka`], correct: `Serbezak soati`},
+    {q: `O'ta kamgao og'irkarvon, ammo og'iz ochgudek bo'lsa, albatta nishonga urgudek qilib xazil aralash so'zlaydi. Undabundagi gap ziyofatlarda necha bor birga o'tirishgan, ko'zi to'q odam. O'zi tug'ulib o'sgan zarang tumanida uninh ozroq ekinbop yeri bor, 2 azamat o'g'li o`, options: [`Diyor Shoyimboyev haqida`, `G'ayrat haqida`, `Jumaniyoz haqida`, `Vorisxon haqida`], correct: `Diyor Shoyimboyev haqida`},
+    {q: `G'ayratning kotibasi kim?`, options: [`Zamira`, `Aslida`, `Emine`, `Munira`], correct: `Zamira`},
+    {q: `Zamira aytishicha uni kim qidirayotgan edi Toshkentga majlisga birga borishlari kk edi`, options: [`Shoyimboyev Diyor`, `Jumaniyoz`, `Burxon`, `Vorisxon`], correct: `Shoyimboyev Diyor`},
+    {q: `Bu nechi kun oldingi galplar`, options: [`4`, `2`, `3`, `5`], correct: `4`},
+    {q: `Xokimiyatdan qaytishda xilvatroq burchakda oq qanday moshinada 2 yigit uni so'roq qildi`, options: [`Neksiya`, `Matiz`, `Damas`, `Jip`], correct: `Neksiya`},
+    {q: `Vorisxon kim edi`, options: [`Jobir otarchi`, `G'ayrat`, `Jumaniyoz`, `Abdukarim`], correct: `Jobir otarchi`},
+    {q: `O'qishga kechroq kirgan, sirtqi yurfakda o'qirdi, lekin imtihon pimtihon topshirganini birov ko'rmagan otardan tushgan yakanlari bilan hisobkitobini to'g'irlab yurardi. Yuzi yaltillab orqaga taralgan sermavj sochlari moydan yaltirab turardi. Xovli biqinidagi xonada buvisi bilan yashardi ta'rif kim ha`, options: [`Vorisxon Jobir Otarchi`, `G'ayrat`, `Abdukarim`, `Burxon`], correct: `Vorisxon Jobir Otarchi`},
+    {q: `Badjahl kampirning qayerga tushib ketgan to'ng'ich qizining o'g'li edi Jobir otarchi.?`, options: [`Bo'stonliqqa`, `Toshkentga`, `Buxoroga`, `Xorazmga`], correct: `Bo'stonliqqa`},
+    {q: `Kelganida torini ting'illatib, nuqul qaysi qo'shini aytib yurar edi`, options: [`Men sevaman sen sevasanmu`, `O'zbekiston`, `Bahor`, `Daryolar`], correct: `Men sevaman sen sevasanmu`},
+    {q: `Jobir Otarchining qanday qasetasi ham chiqqan edi`, options: [`Qopqog'iga tor ko'tarib turgan bashang sur'qti tushirilgan audio qasetasi`, `She'rlar to'plami`, `Qo'shiqlar`, `Intervyu`], correct: `Qopqog'iga tor ko'tarib turgan bashang sur'qti tushirilgan audio qasetasi`},
+    {q: `Xush ovoz yosh sozanda kim edi`, options: [`Jobir Salim`, `G'ayrat`, `Jumaniyoz`, `Abdukarim`], correct: `Jobir Salim`},
+    {q: `Jobir kimni olib chiqib ketgan`, options: [`Aslidani`, `Zamirani`, `Emineni`, `Munirani`], correct: `Aslidani`},
+    {q: `Aslida kelinoyi kimning xotini edi`, options: [`Ilhom tog'aning`, `G'ayratning`, `Jumaniyozning`, `Burxonning`], correct: `Ilhom tog'aning`},
+    {q: `Kaftdekkina bu xovlida Faqat kimning qaqqillab kulishlari yangrab turadi. O'zi oq sariqdan kelgan bir qis va bir o'g'ilning onasi bo'lsada haliyam oqi oq`, options: [`Aslida kelinoyi`, `Zamira`, `Emine`, `Munira`], correct: `Aslida kelinoyi`},
+    {q: `U qayerdadir shofyorlik qiladi, jussasi dum-damaloq, piyoladekpiyoladek ko'zlari go'yoki ichidagi musallasidan rang olgan qontalash ta'rif kim haqida`, options: [`Ilhom aka`, `G'ayrat`, `Jumaniyoz`, `Burxon`], correct: `Ilhom aka`},
+    {q: `Ko'ylak tugmalari yechilib ketgan, kajavasimon qorni selkillaydi. Sochlari han har yon to'zg'ib, tepakali ochilib qolgan kim`, options: [`Ilhom aka`, `G'ayrat`, `Jumaniyoz`, `Burxon`], correct: `Ilhom aka`},
+    {q: `Qariyb ikki yildirki shu hovlida yashab, cho'zinchoq yuzli, odam zoriga doim o'qrayib qaraydigan ushoqqina kim`, options: [`Badjahl kampir`, `Aslida`, `Zamira`, `Emine`], correct: `Badjahl kampir`},
+    {q: `Ilhon ekang o'sha yuzqarolikdan keyin battar ichib olgan bolam. Allaqayerlarda daydib yuradi. Kam keladi buyoqqa. Bo'mshlikka o'tgan sababi Aslida q`, options: [`Jobr Otarchi bilan`, `G'ayrat bilan`, `Jumaniyoz bilan`, `Burxon bilan`], correct: `Jobr Otarchi bilan`},
+    {q: `Toshkentga kelsa G'ayrat Qayerlarni ko'rishni qumsaydi`, options: [`Ilhom akalarining xovlisini`, `O'z uyini`, `Jumaniyozning uyini`, `Hokimiyatni`], correct: `Ilhom akalarining xovlisini`},
+    {q: `G'ayrat kimga oyi deydi`, options: [`Badjahl kampirga`, `Aslidaga`, `Zamira`, `Emine`], correct: `Badjahl kampirga`},
+    {q: `Qayerning Bo'zsuv bo'yidagi ko'rkam o'z davrida hashamatli sanalgan hovliga G'ayrat ko'pkelgan`, options: [`Yunusobod`, `Chorsu`, `Eski shahar`, `Markaz`], correct: `Yunusobod`},
+    {q: `Yunusobod Bo'zsuv bo'yidagi ko'rkam o'z davrida hashmatli sanalgan hovli etagidagi alohida xonada kim turar edi`, options: [`Jumaniyoz jiyan`, `G'ayrat`, `Burxon`, `Abdukarim`], correct: `Jumaniyoz jiyan`},
+    {q: `Martabador uy egasini kamdan-kam ko'rgan. Ondasonda uchrashib qolganlarida xam negadir doim qovolari shishinqirab yuradigan... yelkasida beso'naqay to'n, ularga xafsalasizgina qarab "xa yigitlar o'qis`, options: [`Boltavoy doyi`, `Jumaniyoz`, `Burxon`, `Abdukarim`], correct: `Boltavoy doyi`},
+    {q: `Martabador uy egasi Boltavoy doyi qo'qqisdan vafot etgach bu hovli-xaram kimga qoldi`, options: [`Arzanda jiyan Jumaniyozboyga`, `G'ayratga`, `Burxonga`, `Abdukarimga`], correct: `Arzanda jiyan Jumaniyozboyga`},
+    {q: `Jumaniyozboyning chaqqon xotini kim?`, options: [`Emine xonim`, `Zamira`, `Aslida`, `Munira`], correct: `Emine xonim`},
+    {q: `Uy ro'zg'or bilan ishi yo'q ko'pincha mamlakat bo'ylab xizmat safarlarida yuradi ta'rif kim haqida`, options: [`Jumaniyoz`, `G'ayrat`, `Burxon`, `Abdukarim`], correct: `Jumaniyoz`},
+    {q: `Emine xonim qayerlik edi`, options: [`Qrim`, `Toshkent`, `Buxoro`, `Xorazm`], correct: `Qrim`},
+    {q: `Emine G'ayrat bilan Jumadan 2-3 kurs quyi qaysi bo'limda o'qigan`, options: [`Iqtisod`, `Huquq`, `Tarix`, `Adabiyot`], correct: `Iqtisod`},
+    {q: `Emine o'qishni tugatishga tugatdi-yu 1 kun ham sohasi bo'yicha ishlamadi, allaqayda sirtdan ta'lim olib binoyidek...bo'lib ishladi kim bo'lib`, options: [`Teatrshunos`, `O'qituvchi`, `Shifokor`, `Tadbirkor`], correct: `Teatrshunos`},
+    {q: `Bugun uncha muncha san'at tomoshasining bosh qozisi shu kishim kim?`, options: [`Emine xonim`, `Zamira`, `Aslida`, `Munira`], correct: `Emine xonim`},
+    {q: `Jumaniyozning nechta farzandi bor edi`, options: [`2 aka-uka`, `1 o'g'il`, `2 qiz`, `3 bola`], correct: `2 aka-uka`},
+    {q: `Jumaniyozning 2 aka ukasi nima o'ynayotgan edi`, options: [`Tennis`, `Futbol`, `Voleybol`, `Basketbol`], correct: `Tennis`},
+    {q: `G'ayrat nur ulashgani qo'shni yurtga borib kelib orttirgan jamg'armasiga nima olgan edi`, options: [`Moshina`, `Uy`, `Tilla`, `Seyf`], correct: `Moshina`},
+    {q: `G'ayrat qanaqa rusumli moshina olgan edi`, options: [`Volga`, `Neksiya`, `Matiz`, `Jip`], correct: `Volga`},
+    {q: `G'ayratni volga moshinasi biram minilmagan o'rab qayerda qo'yilgandi`, options: [`Jiyanini uyida`, `Garajda`, `Ko'chada`, `Mehmonxonada`], correct: `Jiyanini uyida`},
+    {q: `Jumaniyoz Qanday maslahat beradi G'ayratga`, options: [`Qochish`, `Ishga borish`, `Hokimiga borish`, `Vorisxon bilan gaplashish`], correct: `Qochish`},
+    {q: `Jumaniyoz G'ayratga qayerga qochishni maslahat beradi`, options: [`Tyumenga`, `Toshkentga`, `Rossiyaga`, `Chet elga`], correct: `Tyumenga`},
+    {q: `Nega Jumaniyoz Tyumenni maslahat beradi`, options: [`Rossiya bilan shartnoma bo'lganligi uchun`, `Yaqinligi uchun`, `Ish ko'pligi uchun`, `Xavfsizligi uchun`], correct: `Rossiya bilan shartnoma bo'lganligi uchun`},
+    {q: `G'ayrat Vorisxonning diydorini bir xam ko'rmasdan qorong'u yerto'lasida nechi oyga yaqin yotib chiqdi`, options: [`4 oy`, `2 oy`, `6 oy`, `1 oy`], correct: `4 oy`},
+    {q: `G'ayratga qo'yilgan 1-ayblov nima`, options: [`Shoyimboyevga Pora bergani`, `Elektr uzgani`, `Vorisxon bilan gaplashgani`, `Ishdan qochgani`], correct: `Shoyimboyevga Pora bergani`},
+    {q: `G'ayratga qo'yilgan 2-ayblov nima`, options: [`Qarzdor tashkilot korxonalarning ayrimlaridan elektrni uzib, ayrimlaridan uzmagani`, `Pora olgani`, `Hokimni haqorat qilgani`, `Ishga kelmagani`], correct: `Qarzdor tashkilot korxonalarning ayrimlaridan elektrni uzib, ayrimlaridan uzmagani`},
+    {q: `Kimni qo'l oyog'idan ko'tarib yerga uraverib ichini to'kib tashlagandek aftoda bir axvolda ekan. yerdan bosh ko'tarmaydi kim`, options: [`Shoyimbayev`, `Jumaniyoz`, `Burxon`, `Vorisxon`], correct: `Shoyimbayev`},
+    {q: `Vorisxon boshqa viloyatga ko'tarilib ketdi. Endi ulрующих qonini ichadi. Vorisxon boshqa viloyatga ketganida u bilan birga nima xam ko'rinmaydi`, options: [`Tuya seyf`, `Moshinasi`, `Kotibi`, `Hujjatlari`], correct: `Tuya seyf`},
+    {q: `Jumaniyoz G'ayratga qanday maslahat beradi va samara beradi`, options: [`Qaytib ishga tiklash va Tovon puli`, `Qochish`, `Vorisxon bilan gaplashish`, `Hokimga borish`], correct: `Qaytib ishga tiklash va Tovon puli`},
+    {q: `Jumaniyoz aytishi bo'yicha G'ayrat shoir bo'lsa taxallusi kim bo'lar edi`, options: [`G'ayrat Lanji`, `G'ayrat Shoir`, `G'ayrat Qalamkash`, `G'ayrat Dono`], correct: `G'ayrat Lanji`},
+    {q: `G'ayrat o'sha gaplardan keyin uni ko'rdingmi?`, options: [`Xech shuniyam shunday qib ber`, `Ha`, `Yo'q`, `Bilmayman`], correct: `Xech shuniyam shunday qib ber`}
+];
+
+let activeQuiz = [];
+let currentQ = 0, score = 0, answered = 0;
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+let rangeStart = null;
+let numButtons = [];
+
+window.onload = function() {
+    const grid = document.getElementById('numberGrid');
+    for (let i = 1; i <= quizData.length; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'num-btn';
+        btn.innerText = i;
+        btn.onclick = () => pickNumber(i, btn);
+        grid.appendChild(btn);
+        numButtons.push(btn);
+    }
+};
+
+function pickNumber(num, btnEl) {
+    const info = document.getElementById('range-info');
+
+    if (rangeStart === null) {
+        rangeStart = num;
+        btnEl.classList.add('picked');
+        info.innerText = `Boshlang'ich: ${num}. Endi oxirgi raqamni tanlang`;
+    } else {
+        let start = rangeStart;
+        let end = num;
+        if (end < start) { const t = start; start = end; end = t; }
+        btnEl.classList.add('picked');
+        info.innerText = `Tanlandi: ${start} - ${end}`;
+        setTimeout(() => startWithRange(start, end), 400);
+    }
+}
+
+function startWithRange(start, end) {
+    activeQuiz = quizData.slice(start - 1, end);
+    document.getElementById('select-screen').style.display = 'none';
+    document.getElementById('mode-screen').style.display = 'flex';
+}
+
+let quizMode = 'quiz';
+
+function chooseMode(mode) {
+    quizMode = mode;
+    if (mode === 'quiz-aralash' || mode === 'yopiq-aralash') {
+        activeQuiz = shuffle([...activeQuiz]);
+    }
+    document.getElementById('mode-screen').style.display = 'none';
+    document.getElementById('intro-screen').style.display = 'flex';
+    startTimer();
+}
+
+function startTimer() {
+    let count = 3;
+    let disp = document.getElementById("countdown");
+    disp.innerText = count;
+    let timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+            disp.innerText = count;
+        } else if (count === 0) {
+            disp.innerText = "Boshladik!";
+        } else {
+            clearInterval(timer);
+            document.getElementById("intro-screen").style.opacity = "0";
+            setTimeout(() => {
+                document.getElementById("intro-screen").style.display = "none";
+                document.getElementById("quiz").style.display = "block";
+                loadQ();
+            }, 800);
+        }
+    }, 1000);
+}
+
+function getOptionsFor(qData) {
+    return shuffle([...qData.options]);
+}
+
+function loadQ() {
+    const qData = activeQuiz[currentQ];
+    document.getElementById('question').innerText = `${currentQ + 1}/${activeQuiz.length}. ${qData.q}`;
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = '';
+
+    if (quizMode === 'yopiq' || quizMode === 'yopiq-aralash') {
+        loadClosedQ(qData, optDiv);
+    } else {
+        loadMultipleChoiceQ(qData, optDiv);
+    }
+}
+
+function loadMultipleChoiceQ(qData, optDiv) {
+    let shuffledOptions = getOptionsFor(qData);
+
+    shuffledOptions.forEach((opt) => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt;
+        btn.onclick = () => check(opt, btn, qData.correct);
+        optDiv.appendChild(btn);
+    });
+}
+
+function loadClosedQ(qData, optDiv) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'closed-input';
+    input.id = 'closed-answer';
+    input.placeholder = 'Javob yozing...';
+    input.onkeypress = (e) => { if (e.key === 'Enter') checkClosed(qData); };
+
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'btn-check';
+    checkBtn.innerText = 'Tekshirish';
+    checkBtn.onclick = () => checkClosed(qData);
+
+    const resultDiv = document.createElement('div');
+    resultDiv.id = 'closed-result';
+
+    optDiv.appendChild(input);
+    optDiv.appendChild(checkBtn);
+    optDiv.appendChild(resultDiv);
+
+    input.focus();
+}
+
+function checkClosed(qData) {
+    const inputEl = document.getElementById('closed-answer');
+    const resultDiv = document.getElementById('closed-result');
+    const user = inputEl.value.toLowerCase().trim();
+    const correct = qData.correct.toLowerCase().trim();
+
+    answered++;
+    inputEl.disabled = true;
+    document.querySelector('.btn-check').disabled = true;
+
+    if (user === correct) {
+        resultDiv.innerHTML = '<b style="color:#00ff99;">✅ To\'g\'ri</b>';
+        score++;
+    } else {
+        resultDiv.innerHTML = '<b style="color:#ff4444;">❌ Noto\'g\'ri.</b><br> Javob: ' + qData.correct;
+    }
+
+    setTimeout(() => {
+        currentQ++;
+        if (currentQ < activeQuiz.length) loadQ();
+        else finishQuiz();
+    }, 2000);
+}
+
+function check(selected, element, correct) {
+    const options = element.parentElement.querySelectorAll('.option');
+    options.forEach(opt => opt.style.pointerEvents = 'none');
+    answered++;
+
+    if (selected === correct) {
+        element.classList.add('correct');
+        score++;
+    } else {
+        element.classList.add('wrong');
+        options.forEach(opt => {
+            if (opt.innerText === correct) {
+                opt.classList.add('correct');
+            }
+        });
+    }
+
+    setTimeout(() => {
+        currentQ++;
+        if (currentQ < activeQuiz.length) loadQ();
+        else finishQuiz();
+    }, 2000);
+}
+
+function finishQuiz() {
+    document.getElementById('question').innerText = "Test yakunlandi!";
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = `
+        <div style="font-size: 20px; margin-bottom: 20px;">
+            Natijangiz: <b style="color:#00ff99;">${score}</b> / ${activeQuiz.length}
+        </div>
+        <button class="btn-finish" onclick="location.reload()">Qayta boshlash</button>
+    `;
+}
+</script>
+</body>
+</html>

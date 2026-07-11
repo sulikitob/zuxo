@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1-Bob: Buzuq til havosi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background: linear-gradient(135deg, #050505, #121212, #1d1d1d); 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            min-height: 100vh; 
+        }
+
+        /* ===== Raqam tanlash ekrani ===== */
+        #select-screen {
+            width: 100%; max-width: 700px;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 25px; padding: 20px 0;
+        }
+        #select-screen h1 {
+            font-size: 26px; color: #00ff99; text-align: center;
+            text-shadow: 0 0 15px rgba(0,255,153,0.4);
+        }
+        #select-screen p { color: #999; font-size: 14px; text-align: center; }
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+            gap: 10px;
+            width: 100%;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 10px;
+            background: #111;
+            border-radius: 20px;
+            box-shadow: 0 0 25px rgba(0,255,150,0.15);
+        }
+        .number-grid::-webkit-scrollbar { width: 8px; }
+        .number-grid::-webkit-scrollbar-thumb { background: #00ff99; border-radius: 10px; }
+        .num-btn {
+            background: #1b1b1b;
+            border: 2px solid #00ff99;
+            color: #00ff99;
+            border-radius: 12px;
+            padding: 12px 0;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+            text-shadow: 0 0 8px rgba(0,255,153,0.6);
+        }
+        .num-btn:hover {
+            background: #00ff99;
+            color: #050505;
+            box-shadow: 0 0 20px rgba(0,255,150,0.8);
+            transform: scale(1.08);
+        }
+
+        /* ===== Intro (countdown) ekran ===== */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #050505; display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000;
+            transition: opacity 0.8s ease;
+        }
+        .content-box { text-align: center; margin-bottom: 50px; }
+        #countdown { 
+            position: absolute; bottom: 50px;
+            font-size: 80px; color: #00ff99; font-weight: bold;
+            text-shadow: 0 0 15px rgba(0,255,153,0.4);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.5; }
+        }
+
+        /* ===== Quiz ekrani ===== */
+        .quiz-box { 
+            display: none;
+            width: 100%; max-width: 600px; background: #1b1b1b; padding: 30px; 
+            border-radius: 25px; box-shadow: 0 0 35px rgba(0, 255, 150, 0.2); 
+            text-align: center; margin-top: 50px;
+        }
+        h2 { color: #00ff99; margin-bottom: 20px; font-size: 22px; }
+        .option { 
+            display: block; width: 100%; padding: 15px; margin: 10px 0; 
+            background: #2a2a2a; border: 2px solid #333; border-radius: 15px; 
+            cursor: pointer; transition: 0.3s; text-align: left;
+        }
+        .option:hover { border-color: #00ff99; }
+        .correct { 
+            background: #00ff99 !important; color: black; font-weight: bold; 
+            animation: bubbleEffect 0.5s ease-out;
+        }
+        @keyframes bubbleEffect {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 255, 153, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0); }
+        }
+        .wrong { background: #ff4d4d !important; color: white; }
+        .btn-finish { 
+            width: 100%; padding: 15px; background: transparent; border: 2px solid #00ff99; 
+            color: #00ff99; border-radius: 15px; cursor: pointer; margin-top: 20px; 
+            font-weight: bold; transition: 0.3s; 
+        }
+        .btn-finish:hover { background: #00ff99; color: black; }
+    </style>
+</head>
+<body>
+
+<div id="select-screen">
+    <h1>📚 1-Bob. Buzuq til havosi</h1>
+    <p>Nechta savol bilan sinalmoqchisiz? Raqamni tanlang (1 dan boshlab shuncha savol chiqadi):</p>
+    <div class="number-grid" id="numberGrid"></div>
+</div>
+
+<div id="intro-screen">
+    <div class="content-box">
+        <h1 style="color:#00ff99; font-size: 32px;">📚 1-Bob. Buzuq til havosi</h1>
+        <p style="margin: 20px; font-size: 18px; max-width: 600px; line-height: 1.6; color: #ccc;">
+            "Robbing seni tark etmadi va g‘azab ham qilmadi.<br> Albatta oxirat sen uchun bu dunyodan yaxshidir."
+            <br><br><small style="color:#00ff99;">🌙 Zuho surasi 93:3-4</small>
+        </p>
+    </div>
+    <div id="countdown">3</div>
+</div>
+
+<div class="quiz-box" id="quiz">
+    <h2 id="question">Yuklanmoqda...</h2>
+    <div id="options"></div>
+    <button class="btn-finish" onclick="finishQuiz()">Testni yakunlash</button>
+</div>
+
+<script>
+const quizData = [
+{q: `Toshkentga kelganining nechanchi kuni peshinda unga Xoji bobo telefon qilgan edi?`, correct: `3-kuni`},
+{q: `Bu kishi hech odamga o'xshab gapirolmaydi, bir og'izgina gapni ham albatta ohangjamaga solib, qo'yib bersangiz uch tilda birdek, Xayyomdan ruboiylar qo'shib aytsa, kim?`, correct: `Xoji bobo`},
+{q: `Iskandarning nega qaynota va qaynonasini ko'rishga ko'zi yo'q?`, correct: `O'zaro allaqanday yasama "adasi, oyisi" deb muomala qilishlari`},
+{q: `Xoji bobo va xotini Toshkentda qancha vaqt yashab ketishgan edi?`, correct: `1 yildan ko'roq`},
+{q: `Xoji bobolar Toshkentning qayerida yashab ketishgan edi?`, correct: `Zarangning xuv bir gadoy topmas tog' qishlog'idan, lekin indamasangiz Londonu Parijdan lof urishadi`},
+{q: `Xoji bobo va xotini Toshkentga uzoq yillar nima bahona borishgan edi?`, correct: `Bebiliska bir sayyohlik yurishi sababdan`},
+{q: `"Balchiqdan chiqqan beklar" iborasi kimlarga nisbatan aytilgan?`, correct: `Yangi boylarga / Xoji boboga`},
+{q: `Indamas, odamovi, qornini g'amlab, sigaretini tutatib tursa bas, kim?`, correct: `Jo'rabek`},
+{q: `Iskandar muovinlikka o'tib, mashina minadigan bo'lganida Xoji bobo unga kimni tavsiya qilgan edi?`, correct: `Chala o'ris jiyanini`},
+{q: `Xoji bobo Xo'ja Xofizni ko'makka chorlab, 1 odamni 1000 ta kaliti bor deb nimani nazarda tutgan?`, correct: `Odamlarning qalbini / poraxo'rlikni`},
+{q: `Kimni ko'rib "bu kesakdan o't chiqqan" degan Jo'ra?`, correct: `Oyravshanni`},
+{q: `Jo'ra chala musulmonligiga borib, betamizlarcha Oyravshanni ko'rgach nima degan edi?`, correct: `"Besh ketgan, vasha plemyannitsa nastoyashshaya krasavitsa, shef, takix malo!"`},
+{q: `Necha yildirki katta do'xtirlikni yig'ishtirib boyvuchcha sifat bo'lib uyda o'tirgan kim?`, correct: `Dilrabo`},
+{q: `Iskandarning nechta farzandi bor edi?`, correct: `2 ta`},
+{q: `Prokuraturada Iskandar kim bo'lib ishlar edi?`, correct: `Muovin`},
+{q: `Bir vaqtlar harbiylar qal'asi sanalgan shaharning qoq markazida, chorak gektarcha keladigan, gulugulzor bog'i, otxonayu molxonasi bor joy qayer?`, correct: `Xoji boboning chorbog'i`},
+{q: `Bu yerlar asli kechagi zamondan davlat quri bergan... deb ataluvchi bir qolipdagi hovli-joylar edi, nima deb atalardi?`, correct: `Obqomdan qolgan uylar`},
+{q: `Xoji boboning hovlisi qanday usulda (kengaytirilgan) edi?`, correct: `Sho'rocha`},
+{q: `Xoji bobo harbiy qismning eski bir bazasini sotib olib nima qilgan edi?`, correct: `Otxonayu-molxona`},
+{q: `"Birov miq etolmaydi, viloyatdagi bor mansabini bir-birini butining orasiga olib minib chiqqan Xoji bobomizning murutini bolta kesolmas" iborasi nimani anglatadi?`, correct: `Hammasi xususiy va qonuniy ekanligini`},
+{q: `Xoji bobo avvaldan nimaga ishqiboz?`, correct: `Otga`},
+{q: `Xoji boboning nechta oti bor?`, correct: `4 ta`},
+{q: `Biri qo'shni turkman ortidan tortiq bo'lib kelgan qanday ot edi?`, correct: `Zotdor qorabayir`},
+{q: `Xoji bobo qachondan boshlab otga minmay qo'ygan?`, correct: `Falonchi falonhiyevich atalib, do'rjiroq mansablarni egallagandan keyin`},
+{q: `Otxonaning olis bir burchagida yana nima ham bor qafasda?`, correct: `Tog' ohusi`},
+{q: `Tog' ohusi uning qafasiga qayerdan kelib qolgan?`, correct: `Mansabdor qarindoshlariga sovg'a sifatida`},
+{q: `Tog'lik nozaninning vazifasi nima?`, correct: `Nozik mehmonlarga ko'rinib turish`},
+{q: `Bu jonivorlarning bariga kim qaraydi?`, correct: `Gena`},
+{q: `Genaning asl ismi nima?`, correct: `G'ani, G'aniqul`},
+{q: `Gena tog'a necha yoshda edi?`, correct: `60+`},
+{q: `Xoji boboga Gena tog'a kim bo'ladi?`, correct: `Amakivachcha`},
+{q: `Xoji onamizga kim bo'ladilar?`, correct: `Ammavachcha`},
+{q: `Xoji onaning ismi kim?`, correct: `Adolat poshsha`},
+{q: `Adolat poshshani kim deb atash farz (urug'i)?`, correct: `Eshon xo'ja urug'idan bo'lgani uchun`},
+{q: `G'aniqul tog'a ham Xoji onani kim deb chaqiradi?`, correct: `Xo' Adal`},
+{q: `G'aniqul tog'a Xoji boboni kim deb chaqiradi?`, correct: `Xo' Samar`},
+{q: `Jo'raning familiyasi nima?`, correct: `Georgiy`},
+{q: `Iskandar uni erkalab Jo'rani kim deb ataydi?`, correct: `Georgiy Gennadeyivich`},
+{q: `G'aniqul amaki qarindoshlarining uyida qancha maoshga dastyorlik va otboqarlik qilar edi?`, correct: `Tekinga`},
+{q: `G'aniqulning tul yolg'iz o'g'lining ismi kim?`, correct: `Jo'raboy`},
+{q: `Harbiy xizmatdan so'ng, ota-onasiz G'aniqul qayerda qolib ketib uylangan, o'g'illi bo'lgan?`, correct: `Qayinzorda`},
+{q: `G'aniqulning xotinining ismi kim?`, correct: `Marusa`},
+{q: `Marusa chechamiz nimadan vafot etgan?`, correct: `Ichkilikka o'ch bo'lgan va jigari yorilib o'lgan`},
+{q: `Xoji boboning qo'liga tushgan ota-bola sig'indilar qayerda istiqomat qilishadi?`, correct: `Otxonaning to'ridagi kiyikka yaqin bir hujra - sobiq "Qaptiyorka"da`},
+{q: `Qachon qaramang egnida dengizchilarning qorachipor "telnyashkasi", kulrang soch-soqoli o'sgan, labida arzondan arzon tamaki, tishlarini battar sarg'aytirib turgan odam kim?`, correct: `Gena amaki`},
+{q: `Tanisa-tanimasa endi ko'rgan odamiga ham do'stona ko'z qisib qo'yish odati bor, izxori xurmati shu bo'lsa kerak. Kim?`, correct: `Gena amaki`},
+{q: `Iskandar bir gal ota-bolaning bo'ydoqxonasiga bosh suqib qochib chiqay dedi, chor devorga ham singib ketgan narsa nima?`, correct: `Tamaki, kul hidi`},
+{q: `Ko'zlari sal ko'kishligini aytmasa... otasining tus o'zi, bo'yi-basti ham, andak enkayib yurishi ham, ovozining bo'g'iq xirriligigacha kim?`, correct: `Jo'ra`},
+{q: `Gung-soqov desa ham bo'ladi: uring-so'king, g'iq degan ovoz chiqarmaydi, bir zaylda kulib turaveradi. Kim?`, correct: `Jo'ra`},
+{q: `Asarda kim "a'lochi" deb keltirilgan?`, correct: `Iskandar`},
+{q: `A'lochi Iskandar bezabon Jo'rani ko'rganidayoq maktab darsligidagi qaysi hikoya esiga kelgan?`, correct: `"Biryuk"`},
+{q: `Ichkari-tashqari hovli doim gavjum, uy egalarining qayerlik qarindoshlari juda ham gavjum?`, correct: `Tog'lik`},
+{q: `Xoji bobomizning nechta qizi bor?`, correct: `4 ta`},
+{q: `Ilk bora bu hovliga qadam qo'yganiga necha yillar bo'lib ketdi Iskandarning?`, correct: `10 yildan oshib ketdi`},
+{q: `O'qishni bitirib kelgach necha yil prokurorga yordamchilik qildi Iskandar?`, correct: `1 yil`},
+{q: `O'sha vaqtdagi prokurorning ismi kim?`, correct: `Rasul aka`},
+{q: `U paytlar Xoji bobo qayerda ishlar edi?`, correct: `Komunal xo'jalik idorasiga rahbarlik qilar edi`},
+{q: `Lekin Xoji bobo Komunal xo'jalik idorasida o'z qorasini ko'rsatmay nima qilar edi?`, correct: `Voha miqyosidagi muhimdan-muhim tadbiru tantanalarda savlat to'kib yurish edi`},
+{q: `U paytlar Xoji boboni kim deb atashar edi?`, correct: `Oqsoqol`},
+{q: `Xoji bobo yana kim bo'lib ishlagan?`, correct: `Viloyat oqsoqollariga boshliq`},
+{q: `Prokuror aytishi bo'yicha "Qichishadigan joyini oldindan qashib qo'yishga usta" odam kim?`, correct: `Xoji bobo`},
+{q: `Gapning koni, she'ru g'azal aralashtirib 3 tilda barobar sayrab o'tirdi. Bilmagan latifasi yo'q, olis Kremldagi dovdirab qolgan chollarni ham tap tortmay...`, correct: `Xoji bobo`},
+{q: `Iskandarning yashaydigan tumani o'sha paytda qayer edi?`, correct: `Jiydali`},
+{q: `Xoji bobo Jiydalida kim bo'lib ishlagan?`, correct: `Sarkotib`},
+{q: `Xoji bobo Jiydalida necha yil sarkotiblik qilgan?`, correct: `4 yil`},
+{q: `"Kamarsiy"moni Iskandar ilk marotaba qayerda ko'rgan edi?`, correct: `Shahar poliklinikasiga yillik tibbiy ko'rikdan o'tishga borganda`},
+{q: `Iskandar Dilyani endi uchrata boshlagan paytlari necha yoshda edi?`, correct: `14-15 yosh`},
+{q: `Qo'lini doimo orqaga qilib yuradigan sersavlat shaxs kim?`, correct: `Xoji bobo`},
+{q: `Maktab direktori bo'lib ishlaydigan shirinso'z, baqaloq xotin kim?`, correct: `O'lmas xola`},
+{q: `Sho'ro bobo va O'lmas xolaning erkatoy arzandasi kim?`, correct: `Shurik`},
+{q: `Qop-qora, daroz, qoqichang xotin kim?`, correct: `Kayvoni xola`},
+{q: `Iskandarning so'zga chechan onasi Kayvoni xolaga kim deb laqab osgan?`, correct: `Tarasha xola`},
+{q: `Iskandarning onasini ismi kim?`, correct: `Mayram`},
+{q: `Tarasha xola onasini emas bolasini...`, correct: `Chimdib oladi`},
+{q: `Tevarak-ko'ydagi nechta xonadon Doniyorovning hovuzidan suv ichar edi?`, correct: `10-15 ta`},
+{q: `Katta-matta yigitga 2 qo'lida satl ko'tarib tashimoq malol kelsada, o'sha kuni u xovuz bo'yida yotib qolishga ham rozi edi, nima uchun?`, correct: `Dilyani ko'rish uchun`},
+{q: `Sochi kaltagina qilib kesilgan boshini bir tomonga solintirgan, katta-katta ko'zlarida ma'sum bir xayrat... kim?`, correct: `Dilyaxon`},
+{q: `Iskandar xovuz bo'yidagi supa labida Dilyaga qarab turganda kim shang'illab yuboradi?`, correct: `Tarasha xola`},
+{q: `Tarasha xola kimni nazarda tutadi?`, correct: `Shurikjonning`},
+{q: `Shurikning asl ismi kim?`, correct: `Shokir`},
+{q: `Shokir Iskandardan necha yosh katta?`, correct: `2 yosh`},
+{q: `Erka tantiligi 5 yashar boladan ham kim?`, correct: `Shokir`},
+{q: `Iskandarning ko'nglida shu kundan boshlab kimga nisbatan adovat paydo bo'ldi?`, correct: `Shokirga nisbatan`},
+{q: `Shurik kim?`, correct: `Sho'ro bobomizning asrandi o'g'li`},
+{q: `Sho'ro bobo asrandi o'g'lini kimdan asrab olgan?`, correct: `Singlisining o'g'li`},
+{q: `Kimni "dumbulboy" deyishadi?`, correct: `Shurikni`},
+{q: `Maktabdan so'ng Shurikni qayerga o'qishga joylashtirishdi?`, correct: `Viloyat pedagogika institutiga`},
+{q: `Shurik o'ziga o'xshagan arzandalarga qo'shilib nima qilib qamalib ketdi?`, correct: `Dorishunoslik`},
+{q: `Uzun-yuluq xabarlarga ko'ra Dilya hozir qayerda o'qirkan?`, correct: `Samarqandda`},
+{q: `Dilya Samarqandda qaysi sohada o'qirdi?`, correct: `Do'xtirlikka`},
+{q: `Ko'zining oqidan boshqa hamma joyi qop-qora kimlar?`, correct: `Ko'mirchilar`},
+{q: `Ko'mirchilar tekis yalang supalikda archa soyasida nimaxo'rlik qilishardi?`, correct: `Qovunxo'rlik`},
+{q: `4-5 yoshlardagi bolakay tog'asining ismi kim?`, correct: `Amirqulboy`},
+{q: `Iskandarning otasi kim edi?`, correct: `Ko'mirchi`},
+{q: `Iskandarning otasi qanday vafot etgan edi?`, correct: `Konda tosh bosib`},
+{q: `Mayram beva 2 yetimchasini nima qilib boqqan?`, correct: `Chevarlik qilib`},
+{q: `Chevarlik qilib nimalar tikar edi Mayram?`, correct: `Ko'rpa, qavar, do'ppi`},
+{q: `Mayram bevaning kattasining ismi nima?`, correct: `Xalima`},
+{q: `Xalima Mayram bevaga qanday yordam berar edi?`, correct: `Kalava, palava titishda`},
+{q: `Beva Mayram o'zi ham uxlab qolmaslik uchun farzandlariga qaysi yetim qiz haqida ertak aytib berar edi?`, correct: `Nekbibi`},
+{q: `Goho o'zini Iskandar qaysi sho'rtumshuq o'rnida ko'rar edi?`, correct: `Nekbibi`},
+{q: `"Alvido noshud qiz Nekbibi" - kimning gapi?`, correct: `Tarasha xola`},
+{q: `Yigit qachon adashganini his qildi?`, correct: `Nikoh tunidayoq`},
+{q: `Iskandar 6 yil umrini nima uchun o'tkazgani ma'lum bo'ldi?`, correct: `Ko'ngil uchun`},
+{q: `Dilrabo poshsha tibbiyotga tupurib, uyda o'tirib olganining sababi?`, correct: `Erining ketidan poyloqchi qo'ydi`},
+{q: `Bu qiz bilan zerikmas ekan odam, kim bilan?`, correct: `Oyravshan`},
+{q: `Odatdagi tortinish, iymanishlar yo'q, xuddi eski tanishlardek bemalol gap berib gap olib o'tiribdi. Kim haqida?`, correct: `Oyravshan`},
+{q: `Televizorda sayrayverib burro bo'lib ketgan, poytaxt ekranlarini gullatib yurgan oyimtalarning o'zi kim?`, correct: `Oyravshan`},
+{q: `She'r o'qiyotganida tamoman o'zgacha qiyofada o'zgacha maqomga kiradi...`, correct: `Oyravshan`},
+{q: `Oyravshan qayerlik?`, correct: `Jiydali`},
+{q: `Oyravshan Jiydalini qaysi mahallasidan?`, correct: `Oqtuproq`},
+{q: `Oyravshanning boshi bog'liq, o'zlarining ko'chasidagi qaysi bola bilan ahdu paymoni bor edi?`, correct: `G'ayrat bilan`},
+{q: `Iskandar bu hayotdagi yigitlik alamini qachon oldi?`, correct: `Oyravshandan bo'sa olganida`},
+{q: `Hasan boboning olmoniyalik arzanda kuyovi kim edi?`, correct: `Xasan`},
+{q: `Xasanni yana qanaqa boja der edilar?`, correct: `Xans boja`},
+{q: `Xasanboy bo'yniga osib olgan yapaski idishchadan dam-badam nima xo'plab qo'yadi?`, correct: `Shnaps`},
+{q: `Xans Bojaning daroz sherigi o'risning nimasiga boshqorong'i ekan?`, correct: `Arog'iga`},
+{q: `Xojiboboning ajralmas xalfalari kim?`, correct: `Abdushukur aka`},
+{q: `"Maxsumsifat mardum" deb ta'riflangan kishi kim?`, correct: `Abdushukur aka`},
+{q: `Ikki oshna qayerlarda birga ishlagan?`, correct: `Partiya-sovet tashkilotlarida`},
+{q: `Bir-birlariga qanday murojat qilishadi?`, correct: `Vich-vichlab`},
+{q: `Ular ham oshna-og'ayni, ham kim?`, correct: `Pir-u murid`},
+{q: `Muridimiz soqov hisoblanadi - bu kim haqida aytilgan?`, correct: `Abdushukur aka`},
+{q: `Olmoniyalik kuyov qaysi qiziga kuyov?`, correct: `Dilora`},
+{q: `U har gal davraga yaqinlasharkan, erining kaftidan quchib, kal boshidan muchchi olgan bo'ladi, kim?`, correct: `Dilora`},
+{q: `Borgan yurtining nuksi urganmi... oldingi ko'rki yo'q, xuddi pati yulingan tovuq deysiz, kim?`, correct: `Dilora`},
+{q: `Dilora kimni ko'riboq yosh qizaloq misoli chopqillab kelib uning bo'yniga osilib oldi?`, correct: `Iskandar pochchasini`},
+{q: `4 yil burun bu chegara shahriga davlatlar o'rtasidagi manfaatga ko'ra, olisda gullagan olmon o'lkasidan kattagina bir to'p...`, correct: `Uchuvchilar kelgan`},
+{q: `...kattagina bir to'p uchuvchi nimani haydab kelishgan?`, correct: `Samolyotlarini`},
+{q: `Ular uchuvchilar oqshomlari shaharda eng bo'ydor qaysi bino atrofida obod xiyobonda aylanib yurishardi?`, correct: `Biznes Markazi`},
+{q: `Xans bilan Dilora qayerda tanishgan edi?`, correct: `Samolyotda`},
+{q: `Xoji bobo eng suygan kuyovi kim edi?`, correct: `Xans`},
+{q: `Xans bilan yaqin bo'lgach unga kim deb ism qo'ydi?`, correct: `Xasan`},
+{q: `Xasan olmon, Xoji bobo u bilan qanday til topishdi?`, correct: `Rus tilida`},
+{q: `Qaynota-kuyov o'tirvolib biznes reja tuzishadi, asosan nima haqidagi?`, correct: `Mehmonxona`},
+{q: `Ajnabiy kuyov ketmasdan oldin Xoji bobo uning sarmoyasidan foydalanib allaqanday o'qishxonaning yotoqxonasini sotib olgan, keyin nima deb atadilar?`, correct: `Dil-oro`},
+{q: `Dil-oro otelining nomi o'z-o'zidan nimaga aylanib ketdi?`, correct: `Oromga`},
+{q: `Shaharning eng oldi mehmonxonalaridan qaysi biri?`, correct: `Orom`},
+{q: `Gena amaki aroqparast mehmon bilan sherik bo'lib kinodagi kim bo'lib berdi?`, correct: `Soqolov`},
+{q: `"Gap bunday o'g'lim. Avvalo yigit kishi ko'chalik gap-so'zni ro'zg'orga yaqinlashtirmaydi, shu noma'qulchilikka borgan erkak uning izini yo'qotishni ham..." kim aytgan?`, correct: `Xoji bobo`},
+{q: `Dilraboga bu xabarni kim yetkazgan edi?`, correct: `Oyravshanning o'zi`},
+{q: `Shahar qancha vaqtlik yo'l?`, correct: `Yarim soatlik`}
+];
+
+let activeQuiz = [];
+let currentQ = 0, score = 0, answered = 0;
+const allAnswers = quizData.map(item => item.correct);
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+/* ===== Raqam tanlash tugmalarini yaratish ===== */
+window.onload = function() {
+    const grid = document.getElementById('numberGrid');
+    for (let i = 1; i <= quizData.length; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'num-btn';
+        btn.innerText = i;
+        btn.onclick = () => startWithCount(i);
+        grid.appendChild(btn);
+    }
+};
+
+function startWithCount(count) {
+    activeQuiz = quizData.slice(0, count);
+    document.getElementById('select-screen').style.display = 'none';
+    document.getElementById('intro-screen').style.display = 'flex';
+    startTimer();
+}
+
+function startTimer() {
+    let count = 3;
+    let disp = document.getElementById("countdown");
+    disp.innerText = count;
+    let timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+            disp.innerText = count;
+        } else if (count === 0) {
+            disp.innerText = "Boshladik!";
+        } else {
+            clearInterval(timer);
+            document.getElementById("intro-screen").style.opacity = "0";
+            setTimeout(() => {
+                document.getElementById("intro-screen").style.display = "none";
+                document.getElementById("quiz").style.display = "block";
+                loadQ();
+            }, 800);
+        }
+    }, 1000);
+}
+
+function getOptionsFor(qData) {
+    let wrongPool = allAnswers.filter(a => a !== qData.correct);
+    let wrongChoices = shuffle([...new Set(wrongPool)]).slice(0, 3);
+    return shuffle([qData.correct, ...wrongChoices]);
+}
+
+function loadQ() {
+    const qData = activeQuiz[currentQ];
+    document.getElementById('question').innerText = `${currentQ + 1}/${activeQuiz.length}. ${qData.q}`;
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = '';
+
+    let shuffledOptions = getOptionsFor(qData);
+
+    shuffledOptions.forEach((opt) => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt;
+        btn.onclick = () => check(opt, btn, qData.correct);
+        optDiv.appendChild(btn);
+    });
+}
+
+function check(selected, element, correct) {
+    const options = element.parentElement.querySelectorAll('.option');
+    options.forEach(opt => opt.style.pointerEvents = 'none');
+    answered++;
+
+    if (selected === correct) {
+        element.classList.add('correct');
+        score++;
+    } else {
+        element.classList.add('wrong');
+        options.forEach(opt => {
+            if (opt.innerText === correct) opt.classList.add('correct');
+        });
+    }
+    setTimeout(() => {
+        currentQ++;
+        if (currentQ < activeQuiz.length) loadQ();
+        else finishQuiz();
+    }, 1000);
+}
+
+function finishQuiz() {
+    let wrong = answered - score;
+    document.getElementById('quiz').innerHTML = `
+        <h2>Natijalar</h2>
+        <div style="line-height: 2.2; font-size: 19px;">
+            Jami savollar: <b>${activeQuiz.length} ta</b><br>
+            To'g'ri javoblar: <span style="color:#00ff99;">${score} ta</span><br>
+            Xato javoblar: <span style="color:#ff4d4d;">${wrong} ta</span>
+        </div>
+        <button class="btn-finish" onclick="location.reload()">Qaytadan boshlash</button>
+    `;
+}
+</script>
+</body>
+</html>

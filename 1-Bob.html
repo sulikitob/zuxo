@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ahmad A'zam. Til nomusi yopiq savol-javob</title>
+    <style>
+        body { margin:0; padding:0; background:#111; font-family:Arial; color:white; display:flex; justify-content:center; align-items:center; height:100vh; overflow:hidden; }
+        #startScreen { position:fixed; top:0; left:0; width:100%; height:100%; background:#111; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; z-index:9999; padding:20px; }
+        #startScreen h1 { color:#00ff99; font-size:50px; }
+        .oyat { max-width:800px; font-size:28px; line-height:1.8; color:#ddd; margin-top:20px; }
+        #startScreen h3 { color:#00ff99; margin-top:20px; }
+        #count { font-size:100px; color:#00ff99; margin-top:40px; animation:pulse 1s infinite; }
+        @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.2);} 100%{transform:scale(1);} }
+        .box { width:650px; background:#1e1e1e; padding:30px; border-radius:20px; text-align:center; box-shadow:0 0 20px black; }
+        h2 { color:#00ff99; }
+        input { width:100%; padding:15px; margin-top:15px; border:none; border-radius:10px; font-size:18px; outline:none; }
+        button { width:100%; padding:15px; margin-top:15px; border:none; border-radius:10px; background:#00ff99; color:black; font-weight:bold; cursor:pointer; font-size:18px; }
+        #result { margin-top:15px; font-size:20px; min-height: 30px; }
+    </style>
+</head>
+<body>
+
+<div id="startScreen">
+    <h1>📚 1-Bob. Buzuq til havosi</h1>
+    <p class="oyat">“Robbing seni tark etmadi va g‘azab ham qilmadi.<br> Albatta oxirat sen uchun bu dunyodan yaxshidir.”</p>
+    <h3>🌙 Zuho surasi 93:3-4</h3>
+    <div id="count">3</div>
+</div>
+
+<div class="box">
+    <h2 id="question"></h2>
+    <input type="text" id="answer" placeholder="Javob yozing..." onkeypress="if(event.key==='Enter') check()">
+    <button onclick="check()">Tekshirish</button>
+    <button onclick="finishQuiz()" style="background:#ff4444; color:white; margin-top:10px;">Testni tugatish</button>
+    <div id="result"></div>
+</div>
+
+<script>
+    /* COUNTDOWN */
+    let time = 3;
+    let timer = setInterval(()=>{
+        document.getElementById("count").innerText = time;
+        time--;
+        if(time < 0){
+            clearInterval(timer);
+            document.getElementById("startScreen").style.display="none";
+        }
+    },1000);
+
+    const quiz = [
+        { q: "Hamma tug'ilgan kunini qanday bahona bilan ziyorat qilishga kelar edi?", a: "xotira kuni munosabati bilan" },
+        { q: "Qishloqning nomi nima?", a: "jiydalik" },
+        { q: "Jiydalik qishlog'iga kelganlar nega kira olmay ovvora edilar?", a: "tog'dan kelgan sel ko'prikni yarmini olib ketgani sababli" },
+        { q: "Tundan kelgan ko'rshapalak deb nimaga ta'rif berilgan?", a: "mashina" },
+        { q: "Sel bir yili butun sigirni olib kelgan edi (ba'zilar to'ng'iz deb ham aytishadi).", a: "to'g'ri" },
+        { q: "Sel kelishidan oldin hammayoqni qanday hid bosib ketadi?", a: "kavrak, xaron" },
+        { q: "Ko'prikni sel bosganda undan o'tishning 1-yo'li qanday?", a: "orqaga qaytib, kamida 60-70 chaqirim etakdagi masofani aylanib, tumanning narigi tarafidan kelish" },
+        { q: "Ko'prikni sel bosganda undan o'tishning 2-yo'li qanday?", a: "so'qmoq bo'ylab so'lga yurib, mahalla guzarlar oralab, tuman markaziga yaqin yangi ko'prik orqali o'tib borish" },
+        { q: "Bosh-oyoq jinsi libosdagi g'aybar, boyvachcha kishi kim?", a: "iskandar" },
+        { q: "Iskandar Jiydalik qishlog'iga qanaqa moshinada keladi?", a: "prado" },
+        { q: "Taksida 7-8 yashar bolasi bilan kelgan kishi kim?", a: "ravshan" },
+        { q: "Maqolda aytilishicha: Zo'rniki...", a: "tegirmon yurgizar" },
+        { q: "Iskandar qayerdan kelayotgan edi?", a: "toshkentdan" },
+        { q: "Yuki birgina osma sumkadan iborat ozg'inroq kishi kim?", a: "g'ayrat aka" },
+        { q: "G'ayrat aka qanaqa moshinada, necha kishi bilan kelgan edi?", a: "kumush rang neksiyada 3 nafar kishi bilan" }
+    ];
+
+    let i = 0;
+    let score = 0;
+
+    function load(){
+        document.getElementById("result").innerHTML = "";
+        document.getElementById("answer").value = "";
+        document.getElementById("question").innerText = (i + 1) + "/" + quiz.length + ". " + quiz[i].q;
+    }
+
+    function check(){
+        let user = document.getElementById("answer").value.toLowerCase().trim();
+        let correct = quiz[i].a.toLowerCase();
+
+        if(user === correct){
+            document.getElementById("result").innerHTML = '<b style="color:#00ff99;">✅ To\'g\'ri</b>';
+            score++;
+        } else {
+            document.getElementById("result").innerHTML = '<b style="color:#ff4444;">❌ Noto\'g\'ri.</b><br> Javob: ' + quiz[i].a;
+        }
+
+        setTimeout(()=>{
+            i++;
+            if(i < quiz.length){
+                load();
+            } else {
+                finishQuiz();
+            }
+        }, 2000);
+    }
+
+    function finishQuiz() {
+        document.getElementById("question").innerText = "🎉 Quiz Yakunlandi";
+        document.getElementById("answer").style.display = "none";
+        document.querySelectorAll(".box > button").forEach(b => b.style.display = "none");
+        document.getElementById("result").innerHTML = `
+            <div style="font-size:24px; color:#fff; line-height:2;">
+                To'g'ri javoblar: <b style="color:#00ff99;">${score}</b><br>
+                Yakuniy natija: <b>${score} / ${quiz.length}</b>
+            </div>
+            <button onclick="location.reload()" style="background:#00ff99; margin-top:20px;">🔄 Qayta ishlash</button>
+        `;
+    }
+
+    load();
+</script>
+
+</body>
+</html>

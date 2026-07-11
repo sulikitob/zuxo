@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Quiz test</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body
+
+{
+    font-family:Arial;
+    background:linear-gradient(135deg,#050505,#121212,#1d1d1d);
+    color:white;
+    overflow-x:hidden;
+
+}
+
+/* HERO */
+.hero{
+    width:100%;
+    height:420px;
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.hero img{
+    max-height:90%;
+    max-width:90%;
+    object-fit:contain;
+    border-radius:25px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.7);
+}
+
+.hero::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.25),
+        rgba(0,0,0,0.65)
+    );
+}
+
+.overlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+}
+
+.overlay h1{
+    font-size:60px;
+    color:#00ff99;
+    text-shadow:0 0 25px #00ff99;
+}
+
+.overlay p{
+    margin-top:10px;
+    font-size:20px;
+    background:rgba(0,0,0,0.4);
+    padding:8px 18px;
+    border-radius:20px;
+}
+
+/* MENU */
+
+.container{
+    max-width:1300px;
+    margin:auto;
+    padding:50px 20px;
+}
+
+.menu-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:30px;
+}
+
+.card{
+    background:#1b1b1b;
+    border-radius:25px;
+    padding:40px 20px;
+    text-align:center;
+    transition:0.4s;
+    text-decoration:none;
+    color:white;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 0 20px rgba(0,255,150,0.1);
+}
+
+.card::before{
+    content:"";
+    position:absolute;
+    width:200%;
+    height:200%;
+    background:linear-gradient(45deg,transparent,#00ff99,transparent);
+    top:-150%;
+    left:-150%;
+    transform:rotate(25deg);
+    transition:0.7s;
+}
+
+.card:hover::before{
+    top:100%;
+    left:100%;
+}
+
+.card:hover{
+    transform:translateY(-12px) scale(1.03);
+    box-shadow:0 0 35px rgba(0,255,150,0.5);
+}
+
+.card h2{
+    position:relative;
+    z-index:2;
+    font-size:30px;
+}
+
+.quiz-card{
+    background:linear-gradient(135deg,#00ff99,#00ccff);
+    color:black;
+    font-weight:bold;
+}
+
+.quiz-card h2{
+    color:black;
+}
+
+/* FOOTER */
+
+.footer{
+    text-align:center;
+    padding:30px;
+    color:#999;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1000px){
+.menu-grid{
+    grid-template-columns:repeat(2,1fr);
+}
+
+.overlay h1{
+    font-size:50px;
+}
+}
+
+@media(max-width:600px){
+
+.hero{
+    height:260px;
+}
+
+.menu-grid{
+    grid-template-columns:1fr;
+}
+
+.overlay h1{
+    font-size:38px;
+}
+
+.overlay p{
+    font-size:16px;
+}
+}
+
+</style>
+</head>
+
+</style>
+</head>
+
+<div id="countdown">3</div>
+
+    <div id="quiz-container">
+        </div>
+
+<body>
+
+<div class="hero">
+
+    <img src="til.jpg">
+
+    <div class="overlay">
+       
+    </div>
+
+    <!-- 🔥 SHU YERGA QO‘SHASAN -->
+    <div class="floating-text"><h1>📚 Yopiq savol-javob </h1></div>
+
+
+</div>
+
+<!-- MENU -->
+
+<div class="container">
+
+    <div class="menu-grid">
+
+
+    
+        <a href="1-Bob.html" class="card"><h2>1.Bob<br>Buzuq til havosi</h2></a>
+           <a href="2-Bob.html" class="card"><h2>2.Bob<br>Tilda mochchoyi sayil</h2></a>
+              <a href="3-Bob.Html" class="card"><h2>3-Bob<br>Tiluvzani makivoppizza</h2></a>
+                 <a href="4-Bob.html" class="card"><h2>4-Bob<br>Ona tilim-Jonu dilim</h2></a>
+                    <a href="5.Bob.html" class="card"><h2>5-Bob<br>Qalam Ahlining jon ozig'i til</h2></a>
+                       <a href="6-Bob.html" class="card"><h2>6-Bob<br>Manaviy Tahdid sharpasi</h2></a>
+                          <a href="7-Bob.html" class="card"><h2>7-Bob<br>Adabiy asar-Til xodisasi. Yoshlik jurnalida suhbat</h2></a>
+                            <a href="#" class="card"><h2>umumiy yopiq savol javob</h2></a>
+                            
+
+
+    </div>
+
+</div>
+
+<div class="footer">
+    Nazarovs.uz ©
+</div>
+
+</body>
+</html>

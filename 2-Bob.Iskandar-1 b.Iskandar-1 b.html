@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2-Bob: Davomi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background: linear-gradient(135deg, #050505, #121212, #1d1d1d); 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            min-height: 100vh; 
+        }
+
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #050505; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000;
+            transition: opacity 0.8s ease;
+        }
+        
+        .content-box { text-align: center; margin-bottom: 50px; }
+        
+        #countdown { 
+            position: absolute; bottom: 50px;
+            font-size: 80px; color: #00ff99; font-weight: bold;
+            text-shadow: 0 0 15px rgba(0,255,153,0.4);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.5; }
+        }
+
+        .quiz-box { 
+            width: 100%; max-width: 600px; background: #1b1b1b; padding: 30px; 
+            border-radius: 25px; box-shadow: 0 0 35px rgba(0, 255, 150, 0.2); 
+            text-align: center; margin-top: 50px;
+        }
+        h2 { color: #00ff99; margin-bottom: 20px; font-size: 22px; }
+        .option { 
+            display: block; width: 100%; padding: 15px; margin: 10px 0; 
+            background: #2a2a2a; border: 2px solid #333; border-radius: 15px; 
+            cursor: pointer; transition: 0.3s; text-align: left;
+        }
+        .option:hover { border-color: #00ff99; }
+        .correct { 
+            background: #00ff99 !important; color: black; font-weight: bold; 
+            animation: bubbleEffect 0.5s ease-out;
+        }
+        @keyframes bubbleEffect {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 255, 153, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0); }
+        }
+        .wrong { background: #ff4d4d !important; color: white; }
+        .btn-finish { 
+            width: 100%; padding: 15px; background: transparent; border: 2px solid #00ff99; 
+            color: #00ff99; border-radius: 15px; cursor: pointer; margin-top: 20px; 
+            font-weight: bold; transition: 0.3s; 
+        }
+        .btn-finish:hover { background: #00ff99; color: black; }
+    </style>
+</head>
+<body onload="startTimer()">
+
+<div id="intro-screen">
+    <div class="content-box">
+        <h1 style="color:#00ff99; font-size: 32px;">📚 1-Bob.se'l (xotimaning boshi) <br>2-qism. 50-97 savollar<br></h1>
+    </div>
+    <div id="countdown">3</div>
+</div>
+
+<div class="quiz-box" id="quiz">
+    <h2 id="question">Yuklanmoqda...</h2>
+    <div id="options"></div>
+    <button class="btn-finish" onclick="finishQuiz()">Testni yakunlash</button>
+</div>
+
+<script>
+function startTimer() {
+    let count = 3;
+    let disp = document.getElementById("countdown");
+    let timer = setInterval(() => {
+        count--;
+        if (count > 0) disp.innerText = count;
+        else if (count === 0) disp.innerText = "Boshladik!";
+        else {
+            clearInterval(timer);
+            document.getElementById("intro-screen").style.opacity = "0";
+            setTimeout(() => { document.getElementById("intro-screen").style.display = "none"; loadQ(); }, 800);
+        }
+    }, 1000);
+}
+
+const quizData = [
+    {q: "Iskandar kim a'lochi?", a: ["Iskandar", "Jo'ra", "Shokir", "G'ayrat"], correct: "Iskandar"},
+    {q: "Iskandar Jo'rani ko'rib qaysi hikoyani esladi?", a: ["Biryuk", "Oq kema", "Yulduzlar", "Mehrobdan chayon"], correct: "Biryuk"},
+    {q: "Kimlarning qarindoshlari gavjum?", a: ["Tog'lik", "Shahar", "Qishloq", "Chet el"], correct: "Tog'lik"},
+    {q: "Xoji boboning nechta qizi bor?", a: ["2 ta", "4 ta", "5 ta", "6 ta"], correct: "4 ta"},
+    {q: "Iskandar necha yildan beri bu hovlida?", a: ["5 yil", "10 yildan oshdi", "15 yil", "20 yil"], correct: "10 yildan oshdi"},
+    {q: "Iskandar necha yil prokurorga yordamchilik qildi?", a: ["1 yil", "2 yil", "3 yil", "4 yil"], correct: "1 yil"},
+    {q: "Prokurorning ismi kim?", a: ["Rasul aka", "Ali aka", "Vali aka", "G'ani aka"], correct: "Rasul aka"},
+    {q: "Xoji bobo qayerda ishlagan?", a: ["Komunal", "Moliya", "Soliq", "Bank"], correct: "Komunal"},
+    {q: "Xoji bobo qayerda savlat to'kib yurgan?", a: ["Ishda", "Tadbirlarda", "Parkda", "Ko'chada"], correct: "Tadbirlarda"},
+    {q: "Xoji boboni nima deb atashgan?", a: ["Oqsoqol", "Boy", "Rais", "Direktor"], correct: "Oqsoqol"},
+    {q: "Xoji bobo yana nima bo'lgan?", a: ["Sarkotib", "Oqsoqol boshlig'i", "Prokuror", "Do'xtir"], correct: "Oqsoqol boshlig'i"},
+    {q: "Qichishadigan joyini qashishga usta kim?", a: ["Xoji bobo", "Iskandar", "Jo'ra", "Gena"], correct: "Xoji bobo"},
+    {q: "Gapning koni Xoji bobo?", a: ["Xoji bobo", "Iskandar", "Jo'ra", "Gena"], correct: "Xoji bobo"},
+    {q: "Iskandar yashagan tuman?", a: ["Jiydali", "Markaz", "Qishloq", "Shahar"], correct: "Jiydali"},
+    {q: "Xoji bobo Jiydalida kim bo'lgan?", a: ["Sarkotib", "Prokuror", "Do'xtir", "Direktor"], correct: "Sarkotib"},
+    {q: "Sarkotiblik necha yil?", a: ["2 yil", "3 yil", "4 yil", "5 yil"], correct: "4 yil"},
+    {q: "Kamarsiy moni Iskandar qayerda ko'rgan?", a: ["Poliklinika", "Ko'cha", "Park", "Do'kon"], correct: "Poliklinika"},
+    {q: "Dilya bilan uchrashganda Iskandar necha yosh?", a: ["10-12", "14-15", "16-17", "18-20"], correct: "14-15"},
+    {q: "Qo'lini orqaga qilib yuruvchi?", a: ["Xoji bobo", "Iskandar", "Jo'ra", "Gena"], correct: "Xoji bobo"},
+    {q: "Maktab direktori?", a: ["O'lmas xola", "Kayvoni", "Mayram", "Xalima"], correct: "O'lmas xola"},
+    {q: "O'lmas xolaning arzandasi?", a: ["Shurik", "Iskandar", "Jo'ra", "Gena"], correct: "Shurik"},
+    {q: "Qop-qora, daroz xotin?", a: ["Kayvoni xola", "O'lmas", "Mayram", "Adolat"], correct: "Kayvoni xola"},
+    {q: "Kayvoni xolaga kim laqab qo'ygan?", a: ["Iskandarning onasi", "Xoji bobo", "Jo'ra", "Gena"], correct: "Iskandarning onasi"},
+    {q: "Iskandarning onasi?", a: ["Mayram", "Adolat", "Xalima", "Dilrabo"], correct: "Mayram"},
+    {q: "Tarasha xola bolasini nima qiladi?", a: ["Chimdib oladi", "Uradi", "Silaydi", "O'padi"], correct: "Chimdib oladi"},
+    {q: "Hovuzdan nechta xonadon suv ichadi?", a: ["5-10", "10-15", "15-20", "20-25"], correct: "10-15"},
+    {q: "Iskandar nima uchun hovuz bo'yida yotishga rozi?", a: ["Dilyani ko'rish", "Suv uchun", "Dam olish", "O'yin"], correct: "Dilyani ko'rish"},
+    {q: "Sochi kalta, katta ko'zli kim?", a: ["Dilyaxon", "Adolat", "Dilrabo", "Xalima"], correct: "Dilyaxon"},
+    {q: "Xovuzda kim shang'illaydi?", a: ["Tarasha xola", "O'lmas xola", "Mayram", "Adolat"], correct: "Tarasha xola"},
+    {q: "Tarasha kimni nazarda tutadi?", a: ["Shurikjonni", "Iskandar", "Jo'ra", "Gena"], correct: "Shurikjonni"},
+    {q: "Singan narsa nima?", a: ["Mo'rt", "Qattiq", "Yaxshi", "Katta"], correct: "Mo'rt"},
+    {q: "Shurikning asl ismi?", a: ["Shokir", "Ali", "Vali", "G'ani"], correct: "Shokir"},
+    {q: "Shokir Iskandardan necha yosh katta?", a: ["1 yosh", "2 yosh", "3 yosh", "4 yosh"], correct: "2 yosh"},
+    {q: "Erka tantiligi 5 yashar boladay kim?", a: ["Shokir", "Iskandar", "Jo'ra", "Gena"], correct: "Shokir"},
+    {q: "Iskandarning ko'nglidagi adovat kimga?", a: ["Shokirga", "Xoji boboga", "Jo'raga", "Genaga"], correct: "Shokirga"},
+    {q: "Shurik kim?", a: ["Sho'ro boboning asrandisi", "O'g'li", "Jiyani", "Do'sti"], correct: "Sho'ro boboning asrandisi"},
+    {q: "Sho'ro bobo asrandisini kimdan olgan?", a: ["Singlisidan", "Akasidan", "Do'stidan", "Qo'shnisidan"], correct: "Singlisidan"},
+    {q: "Dumbulboy kim?", a: ["Shurik", "Iskandar", "Jo'ra", "Gena"], correct: "Shurik"},
+    {q: "Shurik qayerda o'qigan?", a: ["Institutda", "Maktabda", "Kollejda", "Universitetda"], correct: "Institutda"},
+    {q: "Shurik nima uchun qamalgan?", a: ["Dorishunoslik", "O'g'irlik", "Janjal", "Firibgarlik"], correct: "Dorishunoslik"},
+    {q: "Dilya qayerda o'qirkan?", a: ["Samarqandda", "Toshkentda", "Buxoroda", "Urganchda"], correct: "Samarqandda"},
+    {q: "Dilya qaysi sohada?", a: ["Do'xtirlikka", "O'qituvchilik", "Iqtisod", "Huquq"], correct: "Do'xtirlikka"},
+    {q: "Ko'zining oqidan boshqa qop-qora kimlar?", a: ["Ko'mirchilar", "Konchilar", "Shahar", "Dehqon"], correct: "Ko'mirchilar"},
+    {q: "Ko'mirchilar nima yeyishardi?", a: ["Qovunxo'rlik", "Tarvuz", "Meva", "Non"], correct: "Qovunxo'rlik"},
+    {q: "Bolakay tog'asining ismi?", a: ["Amirqulboy", "Ali", "Vali", "G'ani"], correct: "Amirqulboy"},
+    {q: "Iskandarning otasi kim?", a: ["Ko'mirchi", "Prokuror", "Oqsoqol", "Do'xtir"], correct: "Ko'mirchi"},
+    {q: "Otasi qanday vafot etgan?", a: ["Konda tosh bosib", "Kasal", "Baxtsizlik", "Qarilik"], correct: "Konda tosh bosib"},
+    {q: "Mayram yetimchalarini nima bilan boqqan?", a: ["Chevarlik", "Do'kon", "Ish", "Dehqonchilik"], correct: "Chevarlik"}
+];
+
+let currentQ = 0, score = 0, answered = 0;
+
+function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+
+function loadQ() {
+    const qData = quizData[currentQ];
+    document.getElementById('question').innerText = `${currentQ + 1}/${quizData.length}. ${qData.q}`;
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = '';
+    shuffle([...qData.a]).forEach((opt) => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt;
+        btn.onclick = () => check(opt, btn, qData.correct);
+        optDiv.appendChild(btn);
+    });
+}
+
+function check(selected, element, correct) {
+    const options = element.parentElement.querySelectorAll('.option');
+    options.forEach(opt => opt.style.pointerEvents = 'none');
+    answered++;
+    if (selected === correct) { element.classList.add('correct'); score++; }
+    else { element.classList.add('wrong'); options.forEach(opt => { if (opt.innerText === correct) opt.classList.add('correct'); }); }
+    setTimeout(() => {
+        currentQ++;
+        if (currentQ < quizData.length) loadQ();
+        else finishQuiz();
+    }, 1000);
+}
+
+function finishQuiz() {
+    document.getElementById('quiz').innerHTML = `
+        <h2>Natijalar</h2>
+        <div style="line-height: 2.2; font-size: 19px;">
+            Jami savollar: <b>${quizData.length} ta</b><br>
+            To'g'ri: <span style="color:#00ff99;">${score} ta</span><br>
+            Xato: <span style="color:#ff4d4d;">${answered - score} ta</span>
+        </div>
+        <button class="btn-finish" onclick="location.reload()">Qaytadan boshlash</button>
+    `;
+}
+</script>
+</body>
+</html>

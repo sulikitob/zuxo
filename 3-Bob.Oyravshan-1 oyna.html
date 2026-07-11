@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3-Bob. Oyravshan-1 Quiz</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background: linear-gradient(135deg, #050505, #121212, #1d1d1d); 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            min-height: 100vh; 
+        }
+
+        /* ===== Raqam tanlash ekrani ===== */
+        #select-screen {
+            width: 100%; max-width: 700px;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 25px; padding: 20px 0;
+        }
+        #select-screen h1 {
+            font-size: 26px; color: #00ff99; text-align: center;
+            text-shadow: 0 0 15px rgba(0,255,153,0.4);
+        }
+        #select-screen p { color: #999; font-size: 14px; text-align: center; }
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+            gap: 10px;
+            width: 100%;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 10px;
+            background: #111;
+            border-radius: 20px;
+            box-shadow: 0 0 25px rgba(0,255,150,0.15);
+        }
+        .number-grid::-webkit-scrollbar { width: 8px; }
+        .number-grid::-webkit-scrollbar-thumb { background: #00ff99; border-radius: 10px; }
+        .num-btn {
+            background: #1b1b1b;
+            border: 2px solid #00ff99;
+            color: #00ff99;
+            border-radius: 12px;
+            padding: 12px 0;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+            text-shadow: 0 0 8px rgba(0,255,153,0.6);
+        }
+        .num-btn:hover {
+            background: #00ff99;
+            color: #050505;
+            box-shadow: 0 0 20px rgba(0,255,150,0.8);
+            transform: scale(1.08);
+        }
+        .num-btn.picked {
+            background: #ff9900;
+            border-color: #ff9900;
+            color: #050505;
+            box-shadow: 0 0 20px rgba(255,153,0,0.8);
+        }
+        #range-info {
+            color: #ff9900; font-size: 15px; font-weight: bold; min-height: 22px;
+        }
+
+        /* ===== Funksiya tanlash ekrani (4 karta) ===== */
+        #mode-screen {
+            display: none;
+            width: 100%; max-width: 700px;
+            flex-direction: column; align-items: center;
+            gap: 25px; padding: 20px 0;
+        }
+        #mode-screen h1 {
+            font-size: 24px; color: #00ff99; text-align: center;
+            text-shadow: 0 0 15px rgba(0,255,153,0.4);
+        }
+        .mode-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .mode-card {
+            background: #1b1b1b; border-radius: 20px; padding: 30px 15px;
+            text-align: center; transition: 0.4s; color: white; position: relative;
+            overflow: hidden; box-shadow: 0 0 20px rgba(0,255,150,0.1); cursor: pointer;
+            border: none; font-size: 16px; font-weight: bold;
+        }
+        .mode-card::before {
+            content: ""; position: absolute; width: 200%; height: 200%;
+            background: linear-gradient(45deg,transparent,#00ff99,transparent);
+            top: -150%; left: -150%; transform: rotate(25deg); transition: 0.7s;
+        }
+        .mode-card:hover::before { top: 100%; left: 100%; }
+        .mode-card:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 0 35px rgba(0,255,150,0.5); }
+        @media(max-width:600px){ .mode-grid{ grid-template-columns: 1fr; } }
+
+        .btn-show { 
+            width: 100%; padding: 15px; background: transparent; border: 2px solid #00ff99; 
+            color: #00ff99; border-radius: 15px; cursor: pointer; margin-top: 10px; 
+            font-weight: bold; transition: 0.3s; 
+        }
+        .btn-show:hover { background: #00ff99; color: black; }
+        
+        .closed-input {
+            width: 100%; padding: 15px; margin-top: 10px; border: 2px solid #333;
+            border-radius: 12px; font-size: 17px; outline: none; background: #2a2a2a;
+            color: white; text-align: center;
+        }
+        .closed-input:focus { border-color: #00ff99; }
+        .btn-check {
+            width: 100%; padding: 15px; margin-top: 15px; border: 2px solid #00ff99; border-radius: 15px;
+            background: transparent; color: #00ff99; font-weight: bold; cursor: pointer; font-size: 17px;
+            transition: 0.3s;
+        }
+        .btn-check:hover { background: #00ff99; color: black; }
+        #closed-result { margin-top: 15px; font-size: 18px; min-height: 30px; text-align: center; line-height: 1.5; }
+
+        /* ===== Intro (countdown) ekran ===== */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #050505; display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000;
+            transition: opacity 0.8s ease;
+        }
+        .content-box { text-align: center; margin-bottom: 50px; }
+        #countdown { 
+            position: absolute; bottom: 50px;
+            font-size: 80px; color: #00ff99; font-weight: bold;
+            text-shadow: 0 0 15px rgba(0,255,153,0.4);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.5; }
+        }
+
+        /* ===== Quiz ekrani ===== */
+        .quiz-box { 
+            display: none;
+            width: 100%; max-width: 600px; background: #1b1b1b; padding: 30px; 
+            border-radius: 25px; box-shadow: 0 0 35px rgba(0, 255, 150, 0.2); 
+            text-align: center; margin-top: 50px;
+        }
+        h2 { color: #00ff99; margin-bottom: 20px; font-size: 22px; }
+        .option { 
+            display: block; width: 100%; padding: 15px; margin: 10px 0; 
+            background: #2a2a2a; border: 2px solid #333; border-radius: 15px; 
+            cursor: pointer; transition: 0.3s; text-align: left;
+        }
+        .option:hover { border-color: #00ff99; }
+        .correct { 
+            background: #00ff99 !important; color: black; font-weight: bold; 
+            animation: bubbleEffect 0.5s ease-out;
+        }
+        @keyframes bubbleEffect {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 255, 153, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0); }
+        }
+        .wrong { background: #ff4d4d !important; color: white; }
+        .btn-finish { 
+            width: 100%; padding: 15px; background: transparent; border: 2px solid #00ff99; 
+            color: #00ff99; border-radius: 15px; cursor: pointer; margin-top: 20px; 
+            font-weight: bold; transition: 0.3s; 
+        }
+        .btn-finish:hover { background: #00ff99; color: black; }
+    </style>
+</head>
+<body>
+
+<div id="select-screen">
+    <h1>📚 3-Bob. Oyravshan-1</h1>
+    <p></p>
+    <div id="range-info">Boshlang'ich raqamni tanlang</div>
+    <div class="number-grid" id="numberGrid"></div>
+</div>
+
+<div id="mode-screen">
+    <h1>Qaysi funksiyani xohlaysiz?</h1>
+    <div class="mode-grid">
+        <div class="mode-card" onclick="chooseMode('quiz')">Quiz testlar</div>
+        <div class="mode-card" onclick="chooseMode('quiz-aralash')">Quiz aralash</div>
+        <div class="mode-card" onclick="chooseMode('yopiq')">Yopiq savol-javob</div>
+        <div class="mode-card" onclick="chooseMode('yopiq-aralash')">Yopiq savol-javob aralash</div>
+    </div>
+</div>
+
+<div id="intro-screen">
+    <div class="content-box">
+        <h1 style="color:#00ff99; font-size: 32px;">📚 3-Bob. Oyravshan-1</h1>
+        <p style="margin: 20px; font-size: 18px; max-width: 600px; line-height: 1.6; color: #ccc;">
+            Bilim - kuch, tayyorlaning va omad tilaymiz!
+        </p>
+    </div>
+    <div id="countdown">3</div>
+</div>
+
+<div class="quiz-box" id="quiz">
+    <h2 id="question">Yuklanmoqda...</h2>
+    <div id="options"></div>
+    <button class="btn-finish" onclick="finishQuiz()">Testni yakunlash</button>
+</div>
+
+<script>
+const quizData = [
+{q: `Opaning maktubini oyravshan qayerda oldi`, correct: `Toshkentda`},
+{q: `Maktubni oyravshanga kim berdi`, correct: `Muxbir bola`},
+{q: `Muxbir bilan oyravshan qayerda ishlagan edilar`, correct: `Viloyat televideniyasida`},
+{q: `Oyravshan o'sha payti kimni kutayotgan edi`, correct: `Muharrirni`},
+{q: `Muxbir bola oyravshan qayerda payti maktubni berdi`, correct: `Adabiy-dramatik ko'rsatuvlar tahririyati`},
+{q: `Muxbir yigit oyravshanga o'zgarib ketibsiz deydi oyravshan qansi tomonga deganda muxbir qiz qanday javob beradi`, correct: `Tanib bo'lmas darajada`},
+{q: `Toshkentga keliboq oyravshan nima qilgan edi`, correct: `Sochini kesdirgan`},
+{q: `Qoshu ko'z xam ilgarigidek qolmadi, engil boshni aytmasa xam bo'ladi: tarang shim, alomat guldor mayka busiz non topib bo'larmidi tosh shaxarda`, correct: `Oyravshan`},
+{q: `Adresimni aytsam kechqurun kelarmidingiz dedi oyravshan uni kalaka qilib shunda muxbir bola nima kotarib boraman deydi`, correct: `Shampan va shokolod`},
+{q: `Shampanga uncha tobim yo'q nima ichaman deydi oyravshan`, correct: `Kanyak`},
+{q: `Muxbir xonadan chiqib ketgach oyravshandan tashqari xonada nechta kishi bor edi`, correct: `2 ayol`},
+{q: `Toshkentga otlanish arafasida u she'rlaridan saralab qaysi jurnalga yubrogan edi`, correct: `Zebo`},
+{q: `Bosh muxarrir o'rinbosari ismi kim`, correct: `Jamolzoda`},
+{q: `Oyravshanni erkaklarga xos suq bilan boshdan oyoq ko'zdan kechirdi kim`, correct: `Jamolzoda`},
+{q: `Kulrang sochi jingalakka moyil, mo'ylovdor armansifat bir kishi qaysi jutnalning crosswordini ishlab o'tirar edi`, correct: `Огонёк`},
+{q: `Armansifatning ismi kim?`, correct: `Avet`},
+{q: `To'laroq ko'ringani bilan u rosa chaqqon ekan, boz ustiga juda ham sho'x. Kim?`, correct: `Avet`},
+{q: `Goh cho'nqayib Goh yonboshlab olib fotoapparatini chiqqilatarkan okey deya chap ko'zini qisib qo'yadi kim?`, correct: `Avet`},
+{q: `Jamolzodaning ismi kim?`, correct: `Muntazamxon`},
+{q: `Oyravshanning otasining kasbi nima`, correct: `Adabiyot muallimi`},
+{q: `Zebo jurnalidagi opa Oyravshanga nechta savol berdi`, correct: `3`},
+{q: `1-savol nima`, correct: `Otangizning kasbi nima`},
+{q: `2-savol nima`, correct: `Erga tegganmisiz`},
+{q: `3-savol nima`, correct: `Tappi yoyganmisiz`},
+{q: `Zebo jurnalidagi opaga Oyravshanning qaysi nomdagi 2 she'ri yoqdi`, correct: `Nomsiz`},
+{q: `Zebo jurnalidagi opa jimjimador kumush qo'ng'iroqchani silkitgan edi kim kirib keldi`, correct: `Muflixaxon`},
+{q: `Oyravshan qayerda ishga joylashmoqchi ekanini aytdi`, correct: `Televideniyaga`},
+{q: `Zebo jurnalidagi opa oyravshanni olib qoldi va kimga biriktirdi`, correct: `Zamiraxonga`},
+{q: `Zebo jurnalidagi opa sumkasidan oq narsa tushib ketdi va shuni ishlatilmagan siz ishlating deb kimga sovg'a qildi`, correct: `Oyravshanga`},
+{q: `Zebo jurnalidagi opa qaysi moshinaga o'tirdi`, correct: `Volga`},
+{q: `Bosh muxarrir odatda tahririyatga qancha vaqtda 1 kelib ketar edi`, correct: `Hafta-10 kunda bir`},
+{q: `Jurnalga tegishli jamiki tashvish va tadbirlar muovin kimning zimmasida edi`, correct: `Jamolzodaning`},
+{q: `Bosh muharrir opa doim nimalar bilan band`, correct: `Ijod, Deputatlik ishi, Jamoat yumushlari bilan`},
+{q: `Allaqanday fondu fondchalarning faxriy raisi, boz allaqaylarga xamrais, bulardan tashqari yana ko'plab qo'mita va komissiyalarga a'zo ta'rif kim haqida`, correct: `Bosh muharrir`},
+{q: `U nazmiyotidan tortib yurish-turishu kiyinishigacha kimga taqlid qiladi va unga o'xshashga zo'r beradi`, correct: `Zulfiyaxonimga`},
+{q: `Bundan 30 yillarcha chamasi muqaddam opamiz pyesa yozib qo'ygan pyesa sarlavhasi nima`, correct: `Qizlarjon`},
+{q: `Ko'p yillardan buyon bosh muharri opamiz... Nomli pyesa yozayotgan va hali beri tugay demasdi sarlavhasi nima`, correct: `Buvijonlar`},
+{q: `Tuya go'shti yegan asar sira bitmaydi qaysi asar`, correct: `Buvijonlar pyesasi`},
+{q: `Muharrir opa bu borada qaysi darajada edi`, correct: `Doktorlik dissertatsiyasini ham yo'qlab ulgurgan`},
+{q: `Umrida birorta ham she'ru hikoya yozmasdan adabiyot bo'limining mudiri bo'lib yurgan ochiqko'ngil kim?`, correct: `Opa Zamira`},
+{q: `Ko'zoynagi ustidan oyravshanga qattiq tikilgan basavlat odamni kim deb chaqirishardi`, correct: `Qori aka`},
+{q: `Nima uchun qori akani qori aka deyishardi`, correct: `Familiyasi Qoriyev`},
+{q: `Bosh muharrir opaning oyravshan she'rlariga yozilgan so'zboshi maktubi mas'ul kotib kimni qo'lida edi`, correct: `Qori akaning`},
+{q: `Opaning bir qo'ng'irog'i yu uning nomidan bitilgan bitta rasmiy xat bilan nima sodir boldi`, correct: `Shaharliklar ro'yhatidan jou oldi oyravshan`},
+{q: `Oyravshanning taxallusi nima`, correct: `Oy ravshan`},
+{q: `Oyravshanninh she'rlari bosilgan jurnalning qo'shsahifasida oravshanning qaysi sur'ti chop etilgan edi`, correct: `Oyravshanning novda hidlab shoirona turgan uzunchoq sur'ati`},
+{q: `Oyravshanga yana qanday ism qo'ymoqchi bo'lgan onasi`, correct: `Oydin`},
+{q: `Oyravshan va Oydin ismidan oyravshan ismini tanlashdi oyravshan deb kim atagan edi`, correct: `Momosi`},
+{q: `Chaqaloqning eshini xovli adog'idagi serhosil qaysi meva daradti tagiga ko'mib qaytishadi`, correct: `Olma`},
+{q: `Jurnalda Oyravshanni taxalassi qanday yozilgan edi`, correct: `Oy rovshan`},
+{q: `Doim shunday paytlarda g'amgin paytida kim esiga tushadi Oyravshanni`, correct: `G'ayrat`},
+{q: `Qori akada qanday rusumdagi moshina bor edi`, correct: `Eski Moskvich`},
+{q: `Oyravshanni Qori aka eski Moskvichida qayerga oborib qo'ydi`, correct: `Ijaradonasiga`},
+{q: `Muharrir opa nima sabab dan katta ziyofat berdi`, correct: `Saylov`},
+{q: `Bu to'y-u tantanadan birgina odam bebaxradek u darvoza tagiga stul qo'yib yakkayolg'iz o'tiribdi xavo iliq bo'lishiga qaramay egnida qalin guppi cho'pon, boshida qizag'i bir qarich keladigan andijom do'ppi. Kelgan ketganga qontalash kim`, correct: `Opaning eri`},
+{q: `Opaning nechta qizi bor`, correct: `2`},
+{q: `Oyravshan opaning bayramida opaning iltimosiga ko'ra qaysi she'rini o'qidi`, correct: `"Tanxolik-bayram menga"`},
+{q: `Oyravshan 1 ta mas nta she'r o'qidi`, correct: `4`},
+{q: `Opa Oyravshanni kiftiga qanday mato bilan ro'molsimon kepata qib o'rab qo'ydi`, correct: `Shox atlas`},
+{q: `Bayramda Oyravshan kimni ko'rib bayram xarom bu olqishu siylovlar xarom, Bari bir pul chaqa bo'ldi`, correct: `Qori akani`},
+{q: `Ziyofatdan Zamira opa va oyravshan kimning qizil jigulisi da qaytishdi`, correct: `Avetning`},
+{q: `Qori akaning yonida bo'ladigan baqaloq qori akadan nechi yosh kichik edi`, correct: `4`},
+{q: `Opaning televideniya rahbariga tayinlab qo'yishi bilan oyravshan qayerga ishga o'tadi`, correct: `Televideniyaga`},
+{q: `Kim kechagina bosh muharrirlikka ko'tarilgan edi`, correct: `Mirg'iyos`},
+{q: `Bir gal bir olim qanday ko'ylakda ko'rinib baloga qolgan edi`, correct: `Qizil`},
+{q: `Qizil oxorlik ko'ylak sabab qizilparastni ekranga chiqargan muharrirning ahvoli qanday kechdi`, correct: `Kursisini almashtirishga majbur bo'ldi`},
+{q: `"Yozgan matnimni bir ko'rib bersangiz, oyravshan," "Ko'rsatuvimga zo'r bie shoirona matn yozib bersangiz, iltimos ravshanoy, deya yalinib yurgan bola`, correct: `Mirg'iyos`},
+{q: `Mirg'iyos oyravshanga nima deb topshiriq bergan edi`, correct: `Opa bilan suhbat olish`},
+{q: `Nima uchun opadan suhbat olish kerak edi`, correct: `Orden yoki mukofot olgani`},
+{q: `Opa bilan suhbat qurgani qaysi moshinada yo'lga otlandi oyravshan`, correct: `Damas`},
+{q: `Egnida po'rim ko'ylak, bo'ynidagi xamishagi zangori sharf ta'rif kim haqida`, correct: `Opa haqida`},
+{q: `Oyravshan ko'z yosh to'kdi opa yana ro'molcha ushladi o'shanda ro'molcha haqida gap ketadi shunda opa unga nima deydi`, correct: `-Asrab qololmadingizda shuni qizgina`},
+{q: `Opaning davrida bir qo'shiq bo'lardi qorong'uda qo'rqmaslik uchun to'da to'da bo'lib aytishardi ro'molcha haqida qo'shiq sarlavhasini yozing`, correct: `Fabrikamning yo'lidan ro'molcha topib oldim`},
+{q: `Opa yoshlikda qayerda ishlagan`, correct: `Fabrikada`},
+{q: `Opa qanday fabrikada ishlagan`, correct: `Tekstilkombinatda`},
+{q: `Opa tekstilkombinat fabrikada nima ish qilgan`, correct: `To'quvchilik`},
+{q: `Oyravshan nechi yoshga kirgan edi`, correct: `28`},
+{q: `Opa oyravshanni kim deb chaqirar edi`, correct: `Ravshanoy`},
+{q: `Opa qaysi nabirasini chaqirdi`, correct: `Xusnijamol`},
+{q: `Xusnijamol nechi yoshda esi`, correct: `18-19`},
+{q: `Xusnijamol uyning nechinchi qavatidan qaradi`, correct: `2-qavatidan`},
+{q: `Xozir oyravshan nima chiqarayotganini aytdi`, correct: `Saylanma`},
+{q: `Saylanma kimning hisobidan chiqarilayotgan edi`, correct: `O'zining`},
+{q: `Opa oyravshnni qanday niyyatda ishga oganda`, correct: `O'rniga qo'yib ketish uchun`},
+{q: `Opa vafot etganida oyravshan qayerda edi`, correct: `Issiqko'lda`},
+{q: `Issiqko'lda oyravshan nima qilib yurgan edi`, correct: `Boboy bilan cho'milib yurgan edi`},
+{q: `Opa ishdan nima sanab ketadi`, correct: `Bir xodima mashmasha ko'taradi`},
+{q: `Xodim Mashmasha ko'targandan keyin opa qanday ahvolga tushdi`, correct: `Uyda bir holda shumshayib o'tiradi`},
+{q: `Hozir zeboning opaxoni kim edi`, correct: `Muflixa`},
+{q: `Bujur basharasini obdon shibbalab, shochlarini kestirib xurpaytirib jingalak qilib olgan baribr yog'li allaqanday yopishqoq xamon qazg'oqlari bordek`, correct: `Muflixa`},
+{q: `Jurnalning farroshi kim`, correct: `Muntazam Jamolzoda`},
+{q: `Muntazam jamolzodaning ahvoli qanday bo'ldi`, correct: `Nafaqaga haydalgan`},
+{q: `Uni jo'natish rossa qiyn bo'lganmish. Butun umrimni shu jurnalga berdim, qayoqqa ketaman!? Uyda yolg'iz o'tirib nima qilaman deya rosa g'ishavaga borgan kim`, correct: `Muntazam Jamolzoda`},
+{q: `Mashmasha boshlagan mayda hodim kim?`, correct: `Muflixa`},
+{q: `Muntazam Jamolzodaning nechta farzansi bor`, correct: `1 qizi`},
+{q: `Muntazam Jamoldozoda toq va arzanda qizi ham erga tegib ketgan odamni rahmi keladi ammo Opaning пошла ты зачем mentga opaning sarqiti dey`, correct: `Muflixa`},
+{q: `Zamira opaning ahvoli qanday kechdi`, correct: `Muflixa zam qib ogan`},
+{q: `Opa bo'shagan zahoti kim ham arizasini yozibdi`, correct: `Qori aka`},
+{q: `Opaning norasmiy eri kim`, correct: `Qori aka`},
+{q: `Bir bug'altirdan chiqqan chala savod kim`, correct: `Qori aka`},
+{q: `Opaning 2 ala qizi kimdan`, correct: `Qori akadan`},
+{q: `Nega ikkala qizi ham qori akadan`, correct: `Eri bepusht`},
+{q: `Go'ngxo'r chug'urchiq kim`, correct: `Muflixa`},
+{q: `Zebolarning zebosi`, correct: `Taqdir berdi menga bari barini, bir dardgina ezar yurak bag'rimni`},
+{q: `Agar shuning gaplari rost chiqsa, uztozinga, buving qatori bir kampirga kundosh bo'laringa sal qolgan ekanda,... O'l hu kuningga o'l. Kim kundosh bo'lysisiga ozgina qolgan edi`, correct: `Oyravshan`}
+];
+
+let activeQuiz = [];
+let currentQ = 0, score = 0, answered = 0;
+const allAnswers = quizData.map(item => item.correct);
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+let rangeStart = null;
+let numButtons = [];
+
+window.onload = function() {
+    const grid = document.getElementById('numberGrid');
+    for (let i = 1; i <= quizData.length; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'num-btn';
+        btn.innerText = i;
+        btn.onclick = () => pickNumber(i, btn);
+        grid.appendChild(btn);
+        numButtons.push(btn);
+    }
+};
+
+function pickNumber(num, btnEl) {
+    const info = document.getElementById('range-info');
+
+    if (rangeStart === null) {
+        rangeStart = num;
+        btnEl.classList.add('picked');
+        info.innerText = `Boshlang'ich: ${num}. Endi oxirgi raqamni tanlang`;
+    } else {
+        let start = rangeStart;
+        let end = num;
+        if (end < start) { const t = start; start = end; end = t; }
+        btnEl.classList.add('picked');
+        info.innerText = `Tanlandi: ${start} - ${end}`;
+        setTimeout(() => startWithRange(start, end), 400);
+    }
+}
+
+function startWithRange(start, end) {
+    activeQuiz = quizData.slice(start - 1, end);
+    document.getElementById('select-screen').style.display = 'none';
+    document.getElementById('mode-screen').style.display = 'flex';
+}
+
+let quizMode = 'quiz';
+
+function chooseMode(mode) {
+    quizMode = mode;
+    if (mode === 'quiz-aralash' || mode === 'yopiq-aralash') {
+        activeQuiz = shuffle([...activeQuiz]);
+    }
+    document.getElementById('mode-screen').style.display = 'none';
+    document.getElementById('intro-screen').style.display = 'flex';
+    startTimer();
+}
+
+function startTimer() {
+    let count = 3;
+    let disp = document.getElementById("countdown");
+    disp.innerText = count;
+    let timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+            disp.innerText = count;
+        } else if (count === 0) {
+            disp.innerText = "Boshladik!";
+        } else {
+            clearInterval(timer);
+            document.getElementById("intro-screen").style.opacity = "0";
+            setTimeout(() => {
+                document.getElementById("intro-screen").style.display = "none";
+                document.getElementById("quiz").style.display = "block";
+                loadQ();
+            }, 800);
+        }
+    }, 1000);
+}
+
+function getOptionsFor(qData) {
+    let wrongPool = allAnswers.filter(a => a !== qData.correct);
+    let wrongChoices = shuffle([...new Set(wrongPool)]).slice(0, 3);
+    return shuffle([qData.correct, ...wrongChoices]);
+}
+
+function loadQ() {
+    if (currentQ >= activeQuiz.length) {
+        finishQuiz();
+        return;
+    }
+
+    const qData = activeQuiz[currentQ];
+    document.getElementById('question').innerText = `${currentQ + 1}/${activeQuiz.length}. ${qData.q}`;
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = '';
+
+    if (quizMode === 'yopiq' || quizMode === 'yopiq-aralash') {
+        loadClosedQ(qData, optDiv);
+    } else {
+        loadMultipleChoiceQ(qData, optDiv);
+    }
+}
+
+function loadMultipleChoiceQ(qData, optDiv) {
+    let shuffledOptions = getOptionsFor(qData);
+
+    shuffledOptions.forEach((opt) => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt;
+        btn.onclick = () => check(opt, btn, qData.correct);
+        optDiv.appendChild(btn);
+    });
+}
+
+function loadClosedQ(qData, optDiv) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'closed-input';
+    input.id = 'closed-answer';
+    input.placeholder = 'Javobni yozing...';
+    input.onkeypress = (e) => { if (e.key === 'Enter') checkClosed(qData); };
+
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'btn-check';
+    checkBtn.innerText = 'Tekshirish';
+    checkBtn.onclick = () => checkClosed(qData);
+
+    const resultDiv = document.createElement('div');
+    resultDiv.id = 'closed-result';
+
+    optDiv.appendChild(input);
+    optDiv.appendChild(checkBtn);
+    optDiv.appendChild(resultDiv);
+
+    input.focus();
+}
+
+function checkClosed(qData) {
+    const inputEl = document.getElementById('closed-answer');
+    const checkBtnEl = document.querySelector('.btn-check');
+    const resultDiv = document.getElementById('closed-result');
+    
+    if(!inputEl || inputEl.disabled) return;
+
+    const user = inputEl.value.toLowerCase().trim();
+    const correct = qData.correct.toLowerCase().trim();
+
+    answered++;
+    inputEl.disabled = true;
+    checkBtnEl.disabled = true;
+
+    if (user === correct) {
+        resultDiv.innerHTML = '<b style="color:#00ff99; font-size: 20px;">✅ To\'g\'ri!</b>';
+        score++;
+    } else {
+        resultDiv.innerHTML = `<b style="color:#ff4444; font-size: 20px;">❌ Noto\'g\'ri!</b><br><span style="color:#aaa; font-size:15px;">Sizning javob: ${inputEl.value || 'Bo\'sh'}</span><br>To'g'ri javob: <b style="color:#00ff99;">${qData.correct}</b>`;
+    }
+
+    setTimeout(() => {
+        currentQ++;
+        loadQ();
+    }, 2500);
+}
+
+function check(selected, element, correct) {
+    const options = element.parentElement.querySelectorAll('.option');
+    options.forEach(opt => opt.style.pointerEvents = 'none');
+    answered++;
+
+    if (selected === correct) {
+        element.classList.add('correct');
+        score++;
+    } else {
+        element.classList.add('wrong');
+        options.forEach(opt => {
+            if (opt.innerText === correct) opt.classList.add('correct');
+        });
+    }
+    setTimeout(() => {
+        currentQ++;
+        loadQ();
+    }, 1500);
+}
+
+function finishQuiz() {
+    let wrong = answered - score;
+    // Agar foydalanuvchi ba'zi savollarni javobsiz yakunlasa xatolikka qo'shiladi
+    if (answered < activeQuiz.length) {
+        wrong += (activeQuiz.length - answered);
+    }
+    document.getElementById('quiz').innerHTML = `
+        <h2>Natijalar</h2>
+        <div style="line-height: 2.2; font-size: 19px; margin: 20px 0;">
+            Jami savollar: <b>${activeQuiz.length} ta</b><br>
+            To'g'ri javoblar: <span style="color:#00ff99;">${score} ta</span><br>
+            Xato javoblar: <span style="color:#ff4d4d;">${wrong} ta</span>
+        </div>
+        <button class="btn-finish" onclick="location.reload()">Qaytadan boshlash</button>
+    `;
+}
+</script>
+</body>
+</html>

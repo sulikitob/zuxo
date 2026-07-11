@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ahmad A'zam.Til nomusi yopiq savol-javob</title>
+<style>
+    body { margin:0; padding:0; background:#111; font-family:Arial; color:white; display:flex; justify-content:center; align-items:center; height:100vh; overflow:hidden; }
+    #startScreen { position:fixed; top:0; left:0; width:100%; height:100%; background:#111; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; z-index:9999; padding:20px; }
+    #startScreen h1 { color:#00ff99; font-size:50px; }
+    .oyat { max-width:800px; font-size:28px; line-height:1.8; color:#ddd; margin-top:20px; }
+    #startScreen h3 { color:#00ff99; margin-top:20px; }
+    #count { font-size:100px; color:#00ff99; margin-top:40px; animation:pulse 1s infinite; }
+    @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.2);} 100%{transform:scale(1);} }
+    .box { width:650px; background:#1e1e1e; padding:30px; border-radius:20px; text-align:center; box-shadow:0 0 20px black; }
+    h2 { color:#00ff99; }
+    input { width:100%; padding:15px; margin-top:15px; border:none; border-radius:10px; font-size:18px; }
+    button { width:100%; padding:15px; margin-top:15px; border:none; border-radius:10px; background:#00ff99; color:black; font-weight:bold; cursor:pointer; font-size:18px; }
+    #result { margin-top:15px; font-size:20px; }
+</style>
+</head>
+<body>
+
+<div id="startScreen">
+    <h1>📚4-Bob.Ona tilim-Jonu dilim testiga tayyorlaning </h1>
+    <p class="oyat">“Robbing seni tark etmadi va g‘azab ham qilmadi.<br> Albatta oxirat sen uchun bu dunyodan yaxshidir.”</p>
+    <h3>🌙 Zuho surasi 93:3-4</h3>
+    <div id="count">3</div>
+</div>
+
+<div class="box">
+    <h2 id="question"></h2>
+    <input type="text" id="answer" placeholder="Javob yozing...">
+    <button onclick="check()">Tekshirish</button>
+    <button onclick="finishQuiz()" style="background:#ff4444; color:white; margin-top:10px;">Testni tugatish</button>
+    <div id="result"></div>
+</div>
+
+<script>
+    /* COUNTDOWN */
+    let time = 3;
+    let timer = setInterval(()=>{
+        document.getElementById("count").innerText = time;
+        time--;
+        if(time < 0){
+            clearInterval(timer);
+            document.getElementById("startScreen").style.display="none";
+        }
+    },1000);
+
+    /* QUIZ DATA */
+const quiz = [
+        {question: "Teshik munchoq yerda qolmas, aslida munchoqni o'rniga nima deyilishi kerak?", correct: "teshik kulcha"},
+        {question: "Shevalar tilning ildizlari, aslidachi?", correct: "buloqlari"},
+        {question: "OAV minbariga chiqqan odam, ko'pchilikka yuzlangan odam, o'zini hurmat qilgan odam nima qilsin deb aytadi Ahmad A'zam?", correct: "adabiy tilda gapirsin"},
+        {question: "Ahmad A'zam eski shaharning markazida turadi, mahallasining nomi nima?", correct: "Eshonguzar"},
+        {question: "Beshik tebratadigan kelinlarning bir qo'li beshikda, 2 ko'zi esa qayerda edi?", correct: "televizorda"},
+        {question: "Onalar ro'zg'ordan bo'shamay nimaga qadalib qolishadi?", correct: "televizorga"},
+        {question: "Dasturxonda gurunglar aridi, nima sababdan?", correct: "televizor"},
+        {question: "Tilni bilishning yana bir muhim omili nima?", correct: "kitob badiiy asar"},
+        {question: "O'zbek tili necha bovli o'zbek tilini birlashtirgan?", correct: "92"},
+        {question: "Millatning o'zining ichidan parchalashga olib keladigan, tarixda esa bir necha bor takrorlangan narsa nima?", correct: "tiliga rahna solish"},
+        {question: "Oltoy o'lkalari qaysilar?", correct: "barcha javob to'g'ri"},
+        {question: "Ulkan areal qaysi lahja?", correct: "Qipchoq"},
+        {question: "Qipchoq lahjasi shevasi aksar boyliklari kiritilmagani uchun biz jahonning yetakchi tillar qatoriga chiqa olmaymiz va qaysi davlatlarda yashayotgan turkiy halqlardan uzoqlashtirgan?", correct: "Barcha javob to'g'ri"},
+        {question: "Ayni paytda leksikografiyamizga o'g'uz lahjasi sheva boyliklaridan juda oz kiritilgani uchun bugungi kunda qaysi davlatlar tillarini tushunishimiz qiyin va lug'atga muhtojmiz?", correct: "Barcha javob to'g'ri"},
+        {question: "Biz kim mulki turon, Amiri Turkistonmiz, millatlarning eng qadimi va ulug'i turkning bosh bo'g'inimiz so'zlarining muallifi kim?", correct: "Amir temur"},
+        {question: "Turkiy ... ya'ni hozirgi o'zbek tilimiz o'tmishda barcha turkiy el va elatlarga tushunarli bo'lgan?", correct: "chig'atoy"},
+        {question: "Yunus Emro millati qaysi?", correct: "turk"},
+        {question: "Maxtumqulining millati nima?", correct: "turkman"},
+        {question: "Fuzuliyning millati nima?", correct: "ozar"},
+        {question: "Abayning millati nima?", correct: "qozoq"},
+        {question: "Berdaqning millati nima?", correct: "Qoraqalpoq"},
+        {question: "Qaysi dostonlar bir ona tilimiz zamirida yaratilgan?", correct: "barcha javob to'g'ri"},
+        {question: "Tafakkurning siyrati nima?", correct: "so'z"},
+        {question: "Zominning til qomusida -man qo'shimchasi bilan yasalgan adabiy tilga kirmagan nechta so'z keltirilgan?", correct: "20"},
+        {question: "Hazrati Bobomiz 'Muhokamat ul-lug'atayn' asarida 'yig'lamoq' so'zini nechta ma'nosini keltirib o'tgan?", correct: "19"},
+        {question: "Professor To'ta Nasafov o'z tadqiqotida 'qora' so'zining 10 dan oshiq ma'nosi va nechtadan tovlanishini ko'rsatib beradi?", correct: "70"},
+        {question: "Axlatni tashlama, axlatni to'kma deyishadi, axlat o'zi asli nima?", correct: "odam najosati"},
+        {question: "Axlat so'zining o'rniga qaysi so'zni ishlatishimiz mumkin?", correct: "chiqindi"},
+        {question: "O'z tilimizni avaylashda qaysi davlatdan o'rnak olish kerak?", correct: "Fransiya"},
+        {question: "Fransuz tili nechtadan ortiq davlatning milliy tili?", correct: "30"},
+        {question: "Fransuz tilida nechta million aholi gaplashadi?", correct: "130"},
+        {question: "Fransuz tilida gaplashadigan davlatlar uyushmasi nima deb ataladi?", correct: "Franqofoniya"},
+        {question: "Fransuz tilida 130 million odam gaplashadi va nechta odam erkin fikr yurita oladi?", correct: "200 mln"},
+        {question: "Frankofoniya nechta davlatni a'zo qilgan?", correct: "56"},
+        {question: "Frankofoniya 56 davlatni a'zo va nechta davlatni ... sifatida tanilgan?", correct: "14"},
+        {question: "Fransuz tilini yod ta'sirlardan himoya qilish uchun birinchi qonun nechchinchi yilda qabul qilingan?", correct: "1975"},
+        {question: "Fransuz tilini anglo-amerikan ta'sirlardan himoya qilish, o'zga madaniyatlar ta'siridan himoya qilish uchun Jak Tubon qonuni qachon qabul qilingan?", correct: "1995"},
+        {question: "Yozuvlarda fransuz tilida muqobili bo'lgan yo yasalishi mumkin bo'lgan chet tili so'zi ishlatilsa jarima qilingan va reyd o'tkazilib nechta til qonunbuzarligi qilingan?", correct: "1236"},
+        {question: "Yozuvlarda fransuz tilida muqobili bo'lgan yo yasalishi mumkin bo'lgan chet tili so'zi ishlatilsa jarima qilingan va reyd o'tkazilib nechta holatga nisbatan sud xukmi chiqarilgan?", correct: "33"},
+        {question: "Bu ishlarga Fransiyada kim bosh-qosh?", correct: "bosh vazir xuzuridagi oliy komissiya institut fanlar akademiyasi shunday nomlanadi"},
+        {question: "Bosh vazir huzuridagi Oliy komissiya nechta assotsatsiyani muhofaza qiladi fransuz tilini?", correct: "5"},
+        {question: "Yozuvchilar, madaniyat arboblaridan iborat ... institutga azolik bir umr davlatning fransuz tilini muxofaza qilish dasturini ishga tushirishgan, bu dastur nomi nima?", correct: "barhayotlar"},
+        {question: "Barcha rasmiy hujjatlarda ... roziligi va ruxsatisiz chetdan bironta yangi va isloh kiritilishi mumkin emas?", correct: "institut"},
+        {question: "Chet tilidan yangi isloh kiritish uchun davlat qarmog'ida ... va boshqa assotsatsiyalar nashriyotlarida atamalar berib boriladi?", correct: "jurnal offisel"},
+        {question: "Pishgan go'shtning yog'siz qismi nima deyiladi?", correct: "go'shtning qorasi"},
+        {question: "Jonli mavjudotlar to'dasi nima?", correct: "qo'ra"},
+        {question: "Qorani oldim nima?", correct: "uloqni chavandozlar to'dasidan olib chiqib ma'lum bir masofadagi belgiga olib borib tashlash"},
+        {question: "5-10 qo'ram bor, qo'ra nima?", correct: "qoramol"},
+        {question: "Meni qorasi yo'q ayol deb o'ylamang, qora bu yerda qanday ma'noda kelgan?", correct: "Barcha javoblar to'g'ri"},
+        {question: "Qora bosmoq so'zining ma'nosi nima?", correct: "xastalanmoq"},
+        {question: "Qoraga bormoq so'zining ma'nosi nima?", correct: "katta yoshga yetmoq"},
+        {question: "Qoraga yetmoq so'zining ma'nosi nima?", correct: "maqsadga yetmoq martabaga erishmoq"},
+        {question: "qora ovqat nima?", correct: "go'shtsiz pishgan ovqat"},
+        {question: "Qora piyoda so'zining ma'nosi?", correct: "ulov ot eshak transport"},
+        {question: "Qora narsa so'zining ma'nosi nima?", correct: "boylik bisot"},
+        {question: "Shevashunos olim qora so'zi ishtirokida nechta so'zni lug'aviy ma'nosini izohlagan?", correct: "71"},
+        {question: "Koptok tepilmaydi, nima qilinadi?", correct: "zarba beriladi"}
+    ];
+
+    let i = 0;
+    let score = 0;
+
+    function load(){
+        document.getElementById("result").innerHTML = "";
+        document.getElementById("answer").value = "";
+        document.getElementById("question").innerText = (i + 1) + "/" + quiz.length + ". " + quiz[i].question;
+    }
+
+    function check(){
+        let user = document.getElementById("answer").value.toLowerCase().trim();
+        let correct = quiz[i].correct.toLowerCase();
+
+        if(user === correct){
+            document.getElementById("result").innerHTML = "✅ To'g'ri";
+            score++;
+        } else {
+            document.getElementById("result").innerHTML = "❌ Noto'g'ri. To'g'ri javob: " + quiz[i].correct;
+        }
+
+        setTimeout(()=>{
+            i++;
+            if(i < quiz.length){
+                load();
+            } else {
+                finishQuiz();
+            }
+        }, 1500);
+    }
+
+    function finishQuiz() {
+        i = quiz.length;
+        document.getElementById("question").innerText = "🎉 Quiz Yakunlandi";
+        document.getElementById("answer").style.display = "none";
+        
+        document.querySelectorAll(".box > button").forEach(b => b.style.display = "none");
+        
+        document.getElementById("result").innerHTML = `
+            <div style="font-size:24px; color:#fff; line-height:2;">
+                ✅ To'g'ri: <b style="color:#00ff99;">${score}</b><br>
+                ❌ Noto'g'ri: <b style="color:#ff4444;">${quiz.length - score}</b><br>
+                Yakuniy natija: <b>${score} / ${quiz.length}</b>
+            </div>
+            <button onclick="location.reload()" style="background:#00ff99; margin-top:20px;">🔄 Qayta ishlash</button>
+        `;
+    }
+
+    load();
+</script>
+
+</body>
+</html>

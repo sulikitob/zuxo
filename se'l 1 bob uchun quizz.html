@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1-Bob.Se'l(xotimaning boshi)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background: linear-gradient(135deg, #050505, #121212, #1d1d1d); 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            min-height: 100vh; 
+        }
+
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #050505; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000;
+            transition: opacity 0.8s ease;
+        }
+        
+        .content-box { text-align: center; margin-bottom: 50px; }
+        
+        #countdown { 
+            position: absolute; bottom: 50px;
+            font-size: 80px; color: #00ff99; font-weight: bold;
+            text-shadow: 0 0 15px rgba(0,255,153,0.4);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.5; }
+        }
+
+        .quiz-box { 
+            width: 100%; max-width: 600px; background: #1b1b1b; padding: 30px; 
+            border-radius: 25px; box-shadow: 0 0 35px rgba(0, 255, 150, 0.2); 
+            text-align: center; margin-top: 50px;
+        }
+        h2 { color: #00ff99; margin-bottom: 20px; font-size: 22px; }
+        .option { 
+            display: block; width: 100%; padding: 15px; margin: 10px 0; 
+            background: #2a2a2a; border: 2px solid #333; border-radius: 15px; 
+            cursor: pointer; transition: 0.3s; text-align: left;
+        }
+        .option:hover { border-color: #00ff99; }
+        .correct { 
+            background: #00ff99 !important; color: black; font-weight: bold; 
+            animation: bubbleEffect 0.5s ease-out;
+        }
+        @keyframes bubbleEffect {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 255, 153, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 153, 0); }
+        }
+        .wrong { background: #ff4d4d !important; color: white; }
+        .btn-finish { 
+            width: 100%; padding: 15px; background: transparent; border: 2px solid #00ff99; 
+            color: #00ff99; border-radius: 15px; cursor: pointer; margin-top: 20px; 
+            font-weight: bold; transition: 0.3s; 
+        }
+        .btn-finish:hover { background: #00ff99; color: black; }
+    </style>
+</head>
+<body onload="startTimer()">
+
+<div id="intro-screen">
+    <div class="content-box">
+        <h1 style="color:#00ff99; font-size: 32px;">📚 1-Bob.Se'l(xotimaning boshi)</h1>
+        <p style="margin: 20px; font-size: 18px; max-width: 600px; line-height: 1.6; color: #ccc;">
+            "Robbing seni tark etmadi va g‘azab ham qilmadi.
+            <br><br><small style="color:#00ff99;">🌙 Zuho surasi 93:3-4</small>
+        </p>
+    </div>
+    <div id="countdown">3</div>
+</div>
+
+<div class="quiz-box" id="quiz">
+    <h2 id="question">Yuklanmoqda...</h2>
+    <div id="options"></div>
+    <button class="btn-finish" onclick="finishQuiz()">Testni yakunlash</button>
+</div>
+
+<script>
+function startTimer() {
+    let count = 3;
+    let disp = document.getElementById("countdown");
+    let timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+            disp.innerText = count;
+        } else if (count === 0) {
+            disp.innerText = "Boshladik!";
+        } else {
+            clearInterval(timer);
+            document.getElementById("intro-screen").style.opacity = "0";
+            setTimeout(() => {
+                document.getElementById("intro-screen").style.display = "none";
+                loadQ();
+            }, 800);
+        }
+    }, 1000);
+}
+
+const quizData = [
+    { q: "Odamlar qaysi munosabat bilan kelishar edi?", a: ["Xotira kuni munosabati bilan", "Tug'ilgan kun munosabati bilan", "Mehmondorchilik", "Ish yuzasidan"], correct: "Xotira kuni munosabati bilan" },
+    { q: "Qishloqning nomi nima?", a: ["Jiydalik", "Boyqo'ng'ir", "Chorbog'", "Bog'ishamol"], correct: "Jiydalik" },
+    { q: "Jiydalik qishlog'iga kelganlar nega kira olmay ovvora edilar?", a: ["Tog'dan kelgan sel ko'prikni yarmini olib ketgani sabab", "Yo'l yopiq bo'lgani uchun", "Mashinalar o'tmagani uchun", "Qor yog'gani sabab"], correct: "Tog'dan kelgan sel ko'prikni yarmini olib ketgani sabab" },
+    { q: "Tundan kelgan ko'rshapalak deb nimaga ta'rif berilgan?", a: ["Moshina", "Sel", "Odam", "Shamol"], correct: "Moshina" },
+    { q: "Sel bir yili bus butun nimani olib kelgan edi?", a: ["Sigirni", "To'ng'izni", "Mashinani", "Daraxtni"], correct: "Sigirni" },
+    { q: "Sel kelishidan oldin hamayoqni nimani hidi bosib ketadi?", a: ["Kavrak, xaron", "Loy, tuproq", "Gullar", "Yoqilg'i"], correct: "Kavrak, xaron" },
+    { q: "Ko'prikni sel bosganda undan o'tishning 1-si qanday?", a: ["Orqaga qaytib 60-70 chaqirimli yo'lni aylanib kelish", "Suvdan kechib o'tish", "Tog'dan oshish", "Yangi ko'prik qurish"], correct: "Orqaga qaytib 60-70 chaqirimli yo'lni aylanib kelish" },
+    { q: "Ko'prikni sel bosganda undan o'tishning 2-yo'li qanday?", a: ["Soyning beriyog'idagi so'qmoq yo'l", "Taksi chaqirish", "Kutib o'tirish", "Boshqa yo'ldan ketish"], correct: "Soyning beriyog'idagi so'qmoq yo'l" },
+    { q: "Bosh oyoqla jinsi libosla g'aybar,boyvachcha kishi kim?", a: ["Iskandar", "G'ayrat", "Ravshan", "Sardor"], correct: "Iskandar" },
+    { q: "Iskandar Jiydalik qishlog'iga qanaqa moshinada keladi?", a: ["Prado", "Nexia", "Damas", "Cobalt"], correct: "Prado" },
+    { q: "Taksida 7-8 yashar bolasi bilan kelgan kishi kim?", a: ["Ravshan", "Iskandar", "G'ayrat", "Olim"], correct: "Ravshan" },
+    { q: "Zo'rniki tegirmon yurgizar", a: ["Maqol", "Topishmoq", "Hikmat", "Sher"], correct: "Maqol" },
+    { q: "Iskandar qayerdan kelayotgan edi?", a: ["Toshkentdan", "Samarqanddan", "Buxorodan", "Xorazmdan"], correct: "Toshkentdan" },
+    { q: "Yuki birgina osma sumkadan iborat ozg'inroq kishi kim?", a: ["G'ayrat aka", "Iskandar", "Ravshan", "Haydovchi"], correct: "G'ayrat aka" },
+    { q: "G'ayrat aka qanaqa moshinada nechi kishi bilan kelgan edi?", a: ["Kumush rang neksiyada 3 nafar kishi bilan", "Prado, 1 kishi", "Damas, 5 kishi", "Taksi, 2 kishi"], correct: "Kumush rang neksiyada 3 nafar kishi bilan" }
+];
+
+let currentQ = 0, score = 0, answered = 0;
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function loadQ() {
+    const qData = quizData[currentQ];
+    document.getElementById('question').innerText = `${currentQ + 1}/${quizData.length}. ${qData.q}`;
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = '';
+    
+    // Variantlarni aralashtirish
+    let shuffledOptions = shuffle([...qData.a]);
+    
+    shuffledOptions.forEach((opt) => {
+        const btn = document.createElement('div');
+        btn.className = 'option';
+        btn.innerText = opt;
+        btn.onclick = () => check(opt, btn, qData.correct);
+        optDiv.appendChild(btn);
+    });
+}
+
+function check(selected, element, correct) {
+    const options = element.parentElement.querySelectorAll('.option');
+    options.forEach(opt => opt.style.pointerEvents = 'none');
+    answered++;
+    
+    if (selected === correct) {
+        element.classList.add('correct');
+        score++;
+    } else {
+        element.classList.add('wrong');
+        options.forEach(opt => {
+            if (opt.innerText === correct) opt.classList.add('correct');
+        });
+    }
+    setTimeout(() => {
+        currentQ++;
+        if (currentQ < quizData.length) loadQ();
+        else finishQuiz();
+    }, 1000);
+}
+
+function finishQuiz() {
+    let wrong = answered - score;
+    document.getElementById('quiz').innerHTML = `
+        <h2>Natijalar</h2>
+        <div style="line-height: 2.2; font-size: 19px;">
+            Jami savollar: <b>${quizData.length} ta</b><br>
+            To'g'ri javoblar: <span style="color:#00ff99;">${score} ta</span><br>
+            Xato javoblar: <span style="color:#ff4d4d;">${wrong} ta</span>
+        </div>
+        <button class="btn-finish" onclick="location.reload()">Qaytadan boshlash</button>
+    `;
+}
+</script>
+</body>
+</html>
